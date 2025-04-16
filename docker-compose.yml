@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  postgres_db:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PORT: ${DB_PORT}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bot_network
+
+  telegram_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: telegram_bot
+    depends_on:
+      - postgres_db
+    networks:
+      - bot_network
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres_db:${DB_PORT}/${DB_NAME}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - ADMIN_CHAT_ID=${ADMIN_CHAT_ID}
+      - AVAILABLE_ROLES=${AVAILABLE_ROLES}
+    volumes:
+      - .:/app
+    restart: always
+    command: >
+      bash -c "python /app/db/initialize_db.py && python /app/main.py"
+
+networks:
+  bot_network:
+
+volumes:
+  postgres_data:

@@ -1,0 +1,23 @@
+{
+  "macros": [
+    {
+      "vba_name": "Преобразовать_столбец_в_число",
+      "vba_code": "Sub Сonvert_to_number()\n    Dim ws As Worksheet\n    Dim lastRow As Long\n    Dim colNumber As Integer\n    Dim rng As Range\n\n    '' Активный лист\n    Set ws = ActiveSheet\n\n    '' Указываем номер столбца\n    colNumber = {user_input_column}\n\n    '' Последняя строка\n    lastRow = ws.Cells(ws.Rows.Count, colNumber).End(xlUp).Row\n\n    '' Задаем диапазон, начиная с указанной строки\n    Set rng = ws.Range(ws.Cells({user_input_start_cell}, colNumber), ws.Cells(lastRow, colNumber))\n\n    '' Числовой формат\n    rng.NumberFormat = \"0\"\n\n    '' Преобразование значений в числовой формат\n    rng.Value = Evaluate(\"IF({1},--\" & rng.Address & \")\")\n\n    MsgBox \"Столбец успешно преобразован в числовой формат!\"\nEnd Sub",
+      "parameters": {
+        "user_input_column": "{user_input_column}",
+        "user_input_start_cell": "{user_input_start_cell}"
+      }
+    },
+    {
+      "vba_name": "Фильтр_Строки",
+      "vba_code": "Sub Фильтр_Строки()\n    Dim ws As Worksheet\n    Dim filterSheet As Worksheet\n    Dim lastRow As Long\n    Dim colNumber As Integer\n    Dim filterRange As Range\n    Dim filterValues As Variant\n    Dim cell As Range\n    Dim tempArray() As String\n    Dim i As Long\n\n    '' Указываем рабочий лист для фильтрации\n    Set ws = ActiveSheet\n\n    '' Номер столбца для фильтрации\n    colNumber = {user_input_column}\n\n    '' Если пользователь выбирает диапазон\n    If \"{user_input_mode}\" = \"range\" Then\n        '' Указываем лист и диапазон\n        Set filterSheet = ThisWorkbook.Sheets(\"{user_input_sheet}\")\n        Set filterRange = filterSheet.Range(\"{user_input_range}\")\n\n        '' Создаем массив значений для фильтрации\n        ReDim tempArray(1 To filterRange.Cells.Count)\n        i = 1\n        For Each cell In filterRange\n            tempArray(i) = cell.Value\n            i = i + 1\n        Next cell\n        filterValues = tempArray\n    Else\n        '' Если пользователь вводит значения вручную\n        filterValues = Array({user_input_values})\n    End If\n\n    '' Находим последнюю строку в указанном столбце\n    lastRow = ws.Cells(ws.Rows.Count, colNumber).End(xlUp).Row\n\n    '' Снимаем предыдущий фильтр, если есть\n    If ws.AutoFilterMode Then\n        ws.AutoFilterMode = False\n    End If\n\n    '' Применяем фильтр к указанному столбцу\n    ws.Range(ws.Cells(1, colNumber), ws.Cells(lastRow, colNumber)).AutoFilter _\n        Field:=1, Criteria1:=filterValues, Operator:=xlFilterValues\n\n    MsgBox \"Фильтрация завершена!\"\nEnd Sub",
+      "parameters": {
+        "user_input_column": "{user_input_column}",
+        "user_input_mode": "{user_input_mode}",
+        "user_input_sheet": "{user_input_sheet}",
+        "user_input_range": "{user_input_range}",
+        "user_input_values": "{user_input_values}"
+      }
+    }
+  ]
+}

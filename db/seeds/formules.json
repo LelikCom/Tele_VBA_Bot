@@ -1,0 +1,26 @@
+{
+  "formule": [
+    {
+      "vba_name": "Сцепить_Диапозон",
+      "vba_code": "Public Function Сцепить_Диапозон(ByRef Диапозон As Excel.Range, Optional ByVal Разделитель As String = \"\", Optional ByVal Только_Уникальные As Boolean = False) As String\n    Dim rCell As Range\n    Dim MergeText As String\n    Dim oDict As Object\n    Dim ValueArray As Variant\n    Dim Value As Variant\n\n    '' Если нужно удалить дубли, создаём объект Dictionary\n    If Только_Уникальные Then\n        Set oDict = CreateObject(\"Scripting.Dictionary\")\n    End If\n\n    '' Проходим по ячейкам в диапазоне\n    For Each rCell In Диапозон\n        If rCell.Text <> \"\" Then\n            If Только_Уникальные Then\n                '' Добавляем только уникальные значения\n                If Not oDict.exists(rCell.Text) Then\n                    oDict.Add rCell.Text, rCell.Text\n                End If\n            Else\n                '' Просто добавляем текст\n                MergeText = MergeText & Разделитель & rCell.Text\n            End If\n        End If\n    Next\n\n    '' Если убираем дубли, формируем строку из уникальных значений\n    If Только_Уникальные Then\n        ValueArray = oDict.Keys\n        For Each Value In ValueArray\n            MergeText = MergeText & Разделитель & Value\n        Next\n    End If\n\n    '' Убираем лишний разделитель в начале строки\n    If Len(MergeText) > Len(Разделитель) Then\n        MergeText = Mid(MergeText, Len(Разделитель) + 1)\n    End If\n\n    '' Возвращаем результат\n    Сцепить_Диапозон = MergeText\nEnd Function",
+      "parameters": {
+        "Диапозон": "Диапазон для сцепки значений",
+        "Разделитель": "Символ, который будет использоваться для разделения значений",
+        "Только_Уникальные": "1 — удалит дубли, 0 — оставит все значения"
+      },
+      "comment": "Диапозон – диапозон для сцепки.\nРазделитель – укажи символ для разделения значений.\nТолько_Уникальные – 1 - уберет дубли, 0 - оставит все значения."
+    },
+    {
+      "vba_name": "ВПР_Любой_Столбец",
+      "vba_code": "Function ВПР_Любой_Столбец(ИскомоеЗначение As Variant, Таблица As Range, СтолбецПоиска As Integer, СтолбецОтвета As Integer, _\n                                ТочноеСовпадение As Integer) As Variant\n        Dim Найдено As Range\n        Dim ПоискДиапазон As Range\n\n        On Error Resume Next\n\n        '' Определяем диапазон для поиска (только указанный столбец)\n        Set ПоискДиапазон = Таблица.Columns(СтолбецПоиска)\n\n        '' Выполняем поиск в указанном столбце\n        Set Найдено = ПоискДиапазон.Find(What:=ИскомоеЗначение, LookIn:=xlValues, LookAt:=IIf(ТочноеСовпадение = 0, xlWhole, xlPart), _\n                                          After:=ПоискДиапазон.Cells(ПоискДиапазон.Cells.Count))\n\n        '' Если значение найдено\n        If Not Найдено Is Nothing Then\n            Dim Ответ As Variant\n            Ответ = Таблица.Cells(Найдено.Row, СтолбецОтвета).Value\n            If IsEmpty(Ответ) Then\n                ВПР_Любой_Столбец = CVErr(xlErrNA) '' Возвращаем #Н/Д\n            Else\n                ВПР_Любой_Столбец = Ответ\n            End If\n        Else\n            ВПР_Любой_Столбец = CVErr(xlErrNA) '' Возвращаем #Н/Д\n        End If\n    End Function",
+      "parameters": {
+        "ИскомоеЗначение": "Ячейка или значение для поиска в указанном столбце",
+        "Таблица": "Диапазон таблицы для поиска",
+        "СтолбецПоиска": "Номер столбца для поиска",
+        "СтолбецОтвета": "Номер столбца, из которого берётся ответ",
+        "ТочноеСовпадение": "0 для точного совпадения, 1 для частичного"
+      },
+      "comment": "Искомое Значение – ячейка/значение, которые будем искать в столбце выбранной таблицы.\nТаблица – диапазон таблицы, в которой будем искать данные.\nСтолбец Поиска – номер столбца, в котором ищем Искомое Значение.\nСтолбец Ответа – номер столбца, из которого достаем соответствие Искомое Значение.\nТочное Совпадение – устанавливаем 0, если нужно точное совпадение. 1, если нужно частичное совпадение."
+    }
+  ]
+}

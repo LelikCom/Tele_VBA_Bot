@@ -1,0 +1,9 @@
+{
+    "macros": ["noauth", "auth", "admin", "preauth"],
+    "formulas": ["noauth", "auth", "admin", "preauth"],
+    "authorization": ["noauth"],
+    "sql_requests": ["auth", "admin"],
+    "joke_of_the_day": ["auth", "admin"],
+    "feedback": ["auth", "admin"],
+    "admin_panel": ["admin"]
+}
