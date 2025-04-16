@@ -8656,3 +8656,223 @@ Traceback (most recent call last):
   File "/usr/local/lib/python3.10/site-packages/telegram/request/_baserequest.py", line 355, in _request_wrapper
     raise Conflict(message)
 telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-04-16 15:48:13,538 | INFO | root | 📋 Логгер инициализирован.
+2025-04-16 15:48:13,538 | INFO | root | 🚀 Подключаемся к базе данных...
+2025-04-16 15:48:13,543 | INFO | root | ✅ Подключение к базе данных установлено.
+2025-04-16 15:48:13,543 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:48:13,544 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:48:13,544 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:48:13,544 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:48:13,545 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:48:13,545 | INFO | root | ✅ Все таблицы успешно созданы или уже существуют.
+2025-04-16 15:48:13,545 | INFO | root | Загружаем макросы из /app/db/seeds/macros.json...
+2025-04-16 15:48:13,551 | INFO | root | ✅ Загружено макросов: 2
+2025-04-16 15:48:13,643 | INFO | root | 🤖 Бот запущен через polling.
+2025-04-16 15:48:13,644 | INFO | root | 🎯 Запущен мониторинг ролей пользователей...
+2025-04-16 15:48:13,856 | INFO | root | ⚙️ Устанавливаем команды Telegram бота...
+2025-04-16 15:48:14,350 | INFO | root | [START] user_id=626841737 | username=AIchetovkin | role=admin
+2025-04-16 15:48:14,468 | INFO | root | [START] user_id=626841737 | username=AIchetovkin | role=admin
+2025-04-16 15:48:15,792 | INFO | root | [START] user_id=626841737 | username=AIchetovkin | role=admin
+2025-04-16 15:48:18,627 | INFO | root | [PROCESS_CONVERT] Начало сценария 'Преобразовать столбец в число'
+2025-04-16 15:48:18,628 | INFO | root | [PROCESS_CONVERT] Текущий шаг: ask_column
+2025-04-16 15:48:18,628 | INFO | root | [PROCESS_CONVERT] Переход к шагу: ask_column
+2025-04-16 15:48:18,880 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:18,881 | INFO | macro.macros_logic | Сценарий макроса 'Преобразовать_столбец_в_число', шаг: ask_column_waiting
+2025-04-16 15:48:21,023 | INFO | root | [ROUTER] user_id=626841737 | state=None, macro_step=ask_column_waiting
+2025-04-16 15:48:21,024 | INFO | root | [PROCESS_CONVERT] Начало сценария 'Преобразовать столбец в число'
+2025-04-16 15:48:21,024 | INFO | root | [PROCESS_CONVERT] Текущий шаг: ask_column_waiting
+2025-04-16 15:48:21,024 | INFO | root | [PROCESS_CONVERT] Переход к шагу: ask_column_waiting
+2025-04-16 15:48:21,024 | INFO | root | Получен ввод от пользователя: 22
+2025-04-16 15:48:21,024 | INFO | root | Сохранён номер столбца: 22
+2025-04-16 15:48:21,144 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:21,145 | INFO | root | Переходим к шагу: ask_start_cell
+2025-04-16 15:48:21,286 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:22,182 | INFO | root | [ROUTER] user_id=626841737 | state=None, macro_step=ask_start_cell
+2025-04-16 15:48:22,182 | INFO | root | [PROCESS_CONVERT] Начало сценария 'Преобразовать столбец в число'
+2025-04-16 15:48:22,182 | INFO | root | [PROCESS_CONVERT] Текущий шаг: ask_start_cell
+2025-04-16 15:48:22,183 | INFO | root | [PROCESS_CONVERT] Переход к шагу: ask_start_cell
+2025-04-16 15:48:22,183 | INFO | root | [START_CELL] Введено пользователем: 3
+2025-04-16 15:48:22,193 | INFO | root | [START_CELL] Сохранена стартовая строка: 3
+2025-04-16 15:48:22,397 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:22,401 | INFO | root | [START_CELL] Сгенерирован макрос для столбца 22, строки 3
+2025-04-16 15:48:22,595 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:22,596 | INFO | root | [START_CELL] Переход к следующему шагу: show_instruction
+2025-04-16 15:48:22,596 | INFO | root | [PROCESS_CONVERT] Начало сценария 'Преобразовать столбец в число'.
+2025-04-16 15:48:22,596 | INFO | root | [PROCESS_CONVERT] Текущий шаг: show_instruction
+2025-04-16 15:48:22,596 | INFO | root | [PROCESS_CONVERT] Переход к шагу: show_instruction
+2025-04-16 15:48:22,747 | INFO | root | [PROCESS_CONVERT] Сценарий завершён.
+2025-04-16 15:48:26,486 | INFO | root | [PROCESS_CONVERT] Начало сценария 'Преобразовать столбец в число'
+2025-04-16 15:48:26,486 | INFO | root | [PROCESS_CONVERT] Текущий шаг: ask_column
+2025-04-16 15:48:26,486 | INFO | root | [PROCESS_CONVERT] Переход к шагу: ask_column
+2025-04-16 15:48:26,671 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:26,671 | INFO | macro.macros_logic | Сценарий макроса 'Преобразовать_столбец_в_число', шаг: ask_column_waiting
+2025-04-16 15:48:28,125 | INFO | root | [ROUTER] user_id=626841737 | state=None, macro_step=ask_column_waiting
+2025-04-16 15:48:28,126 | INFO | root | [PROCESS_CONVERT] Начало сценария 'Преобразовать столбец в число'
+2025-04-16 15:48:28,126 | INFO | root | [PROCESS_CONVERT] Текущий шаг: ask_column_waiting
+2025-04-16 15:48:28,126 | INFO | root | [PROCESS_CONVERT] Переход к шагу: ask_column_waiting
+2025-04-16 15:48:28,126 | INFO | root | Получен ввод от пользователя: 2
+2025-04-16 15:48:28,127 | INFO | root | Сохранён номер столбца: 2
+2025-04-16 15:48:28,245 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:28,246 | INFO | root | Переходим к шагу: ask_start_cell
+2025-04-16 15:48:28,373 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:29,815 | INFO | root | [ROUTER] user_id=626841737 | state=None, macro_step=ask_start_cell
+2025-04-16 15:48:29,815 | INFO | root | [PROCESS_CONVERT] Начало сценария 'Преобразовать столбец в число'
+2025-04-16 15:48:29,815 | INFO | root | [PROCESS_CONVERT] Текущий шаг: ask_start_cell
+2025-04-16 15:48:29,816 | INFO | root | [PROCESS_CONVERT] Переход к шагу: ask_start_cell
+2025-04-16 15:48:29,816 | INFO | root | [START_CELL] Введено пользователем: 2
+2025-04-16 15:48:29,825 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(bd717ce1-7094-4de5-ae38-bb59a0261feb) already exists.
+
+2025-04-16 15:48:29,826 | INFO | root | [START_CELL] Сохранена стартовая строка: 2
+2025-04-16 15:48:29,927 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:29,931 | INFO | root | [START_CELL] Сгенерирован макрос для столбца 2, строки 2
+2025-04-16 15:48:30,090 | WARNING | root | Роль пользователя 626841737 не позволяет логировать сообщение.
+2025-04-16 15:48:30,090 | INFO | root | [START_CELL] Переход к следующему шагу: show_instruction
+2025-04-16 15:48:30,090 | INFO | root | [PROCESS_CONVERT] Начало сценария 'Преобразовать столбец в число'.
+2025-04-16 15:48:30,091 | INFO | root | [PROCESS_CONVERT] Текущий шаг: show_instruction
+2025-04-16 15:48:30,091 | INFO | root | [PROCESS_CONVERT] Переход к шагу: show_instruction
+2025-04-16 15:48:30,196 | INFO | root | [PROCESS_CONVERT] Сценарий завершён.
+2025-04-16 15:48:36,326 | INFO | root | [START] user_id=626841737 | username=AIchetovkin | role=admin
+2025-04-16 15:49:47,757 | INFO | root | [START] user_id=216723603 | username=LelikCom | role=noauth
+2025-04-16 15:49:53,789 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:49:54,041 | INFO | bot.core.auth_user.handle_contact | Инициирование процесса авторизации для пользователя: 216723603
+2025-04-16 15:49:54,207 | INFO | root | log_bot_answer: logged answer for user 216723603, message_id 12842
+2025-04-16 15:49:56,851 | INFO | bot.core.auth_user.handle_contact | Заявка отправлена администратору 626841737
+2025-04-16 15:50:01,394 | INFO | bot.core.auth_user.handle_auth_callback | Обработка callback: auth_approve_216723603_79068874019
+2025-04-16 15:50:27,586 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:27,897 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:28,083 | INFO | root | log_bot_answer: logged answer for user 216723603, message_id 12847
+2025-04-16 15:50:29,166 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:29,304 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:30,138 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:30,244 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:30,257 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:30,270 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:30,510 | INFO | macro.macros_logic | Сценарий макроса 'Фильтр_Строки', шаг: process_column
+2025-04-16 15:50:33,208 | INFO | root | [ROUTER] user_id=216723603 | state=None, macro_step=process_column
+2025-04-16 15:50:33,223 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:33,379 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:34,360 | INFO | root | [ROUTER] user_id=216723603 | state=None, macro_step=wait_for_mode
+2025-04-16 15:50:34,375 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:34,375 | ERROR | root | ❌ Ошибка в сценарии: 'NoneType' object has no attribute 'answer'
+Traceback (most recent call last):
+  File "/app/macro/filter_rows/handler.py", line 57, in process_filter_rows_scenario
+    return await handlers[step](update, context)
+  File "/app/macro/filter_rows/steps/mode.py", line 164, in handle_mode_selection
+    await query.answer()
+AttributeError: 'NoneType' object has no attribute 'answer'
+2025-04-16 15:50:36,538 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:36,179 | INFO | root | [ROUTER] user_id=216723603 | state=None, macro_step=process_column
+2025-04-16 15:50:36,194 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:36,360 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:37,490 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:37,576 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:40,949 | INFO | root | [ROUTER] user_id=216723603 | state=None, macro_step=process_range_input
+2025-04-16 15:50:40,964 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:40,964 | INFO | root | Получен диапазон: ЛИСТ1!C5:D20
+2025-04-16 15:50:41,216 | INFO | root | log_bot_answer: logged answer for user 216723603, message_id 12860
+2025-04-16 15:50:41,230 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:50:41,230 | INFO | root | Начало выполнения confirm_macro
+2025-04-16 15:50:41,231 | INFO | root | Текущий режим: range
+2025-04-16 15:50:41,231 | INFO | root | Недостающие данные: []
+2025-04-16 15:50:41,231 | INFO | root | Пытаемся получить макрос по имени 'Фильтр_Строки'
+2025-04-16 15:50:41,235 | INFO | root | Макрос найден, строим макрос...
+2025-04-16 15:50:41,471 | INFO | root | Переход к следующему шагу: show_instruction
+2025-04-16 15:50:41,484 | ERROR | db.dialog_log | Ошибка в insert_question: duplicate key value violates unique constraint "dialog_log_pkey"
+DETAIL:  Key (session_id)=(40401202-9586-4c09-aaa6-fcd8b8ac7540) already exists.
+
+2025-04-16 15:53:50,189 | INFO | root | [START] user_id=626841737 | username=AIchetovkin | role=admin
+2025-04-16 15:56:39,396 | ERROR | telegram.ext | Network Retry Loop (Polling Updates): Invalid token. Aborting retry loop.
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/telegram/ext/_utils/networkloop.py", line 115, in network_retry_loop
+    if not await do_action():
+  File "/usr/local/lib/python3.10/site-packages/telegram/ext/_utils/networkloop.py", line 108, in do_action
+    return action_cb_task.result()
+  File "/usr/local/lib/python3.10/asyncio/futures.py", line 201, in result
+    raise self._exception.with_traceback(self._exception_tb)
+  File "/usr/local/lib/python3.10/asyncio/tasks.py", line 232, in __step
+    result = coro.send(None)
+  File "/usr/local/lib/python3.10/site-packages/telegram/ext/_updater.py", line 335, in polling_action_cb
+    updates = await self.bot.get_updates(
+  File "/usr/local/lib/python3.10/site-packages/telegram/ext/_extbot.py", line 658, in get_updates
+    updates = await super().get_updates(
+  File "/usr/local/lib/python3.10/site-packages/telegram/_bot.py", line 4593, in get_updates
+    await self._post(
+  File "/usr/local/lib/python3.10/site-packages/telegram/_bot.py", line 691, in _post
+    return await self._do_post(
+  File "/usr/local/lib/python3.10/site-packages/telegram/ext/_extbot.py", line 362, in _do_post
+    return await super()._do_post(
+  File "/usr/local/lib/python3.10/site-packages/telegram/_bot.py", line 720, in _do_post
+    result = await request.post(
+  File "/usr/local/lib/python3.10/site-packages/telegram/request/_baserequest.py", line 197, in post
+    result = await self._request_wrapper(
+  File "/usr/local/lib/python3.10/site-packages/telegram/request/_baserequest.py", line 351, in _request_wrapper
+    raise InvalidToken(message)
+telegram.error.InvalidToken: Unauthorized
+2025-04-16 15:58:54,262 | ERROR | asyncio | Task was destroyed but it is pending!
+task: <Task pending name='Application:7898706106:update_fetcher' coro=<Application._update_fetcher() running at /usr/local/lib/python3.10/site-packages/telegram/ext/_application.py:1221> wait_for=<Future pending cb=[Task.__wakeup()]>>
+2025-04-16 15:59:18,566 | INFO | root | 📋 Логгер инициализирован.
+2025-04-16 15:59:18,567 | INFO | root | 🚀 Подключаемся к базе данных...
+2025-04-16 15:59:18,571 | INFO | root | ✅ Подключение к базе данных установлено.
+2025-04-16 15:59:18,571 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:59:18,572 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:59:18,572 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:59:18,572 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:59:18,573 | INFO | root | ⚙️ Выполняем запрос: 
+            CREATE TABLE IF N...
+2025-04-16 15:59:18,573 | INFO | root | ✅ Все таблицы успешно созданы или уже существуют.
+2025-04-16 15:59:18,573 | INFO | root | Загружаем макросы из /app/db/seeds/macros.json...
+2025-04-16 15:59:18,579 | INFO | root | ✅ Загружено макросов: 2
+2025-04-16 15:59:18,688 | INFO | root | 🤖 Бот запущен через polling.
+2025-04-16 15:59:18,689 | INFO | root | 🎯 Запущен мониторинг ролей пользователей...
+2025-04-16 15:59:24,475 | WARNING | root | [MONITOR] Не удалось установить команды для 626841737: Timed out
+2025-04-16 15:59:30,906 | INFO | root | ⚙️ Устанавливаем команды Telegram бота...
+2025-04-16 15:59:36,585 | INFO | root | [START] user_id=626841737 | username=AIchetovkin | role=admin
+2025-04-16 15:59:51,383 | INFO | root | [START] user_id=216723603 | username=LelikCom | role=noauth
