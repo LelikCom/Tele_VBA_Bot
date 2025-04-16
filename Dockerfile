@@ -1,28 +1,28 @@
-# Используем официальный образ Python
+# Используем официальный образ Python с конкретной версией
 FROM python:3.10-slim
 
+# Устанавливаем зависимости для PostgreSQL и очищаем кэш
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libpq-dev gcc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем необходимые зависимости для работы с PostgreSQL
-RUN apt-get update && apt-get install -y libpq-dev
-
-# Обновляем pip
-RUN pip install --upgrade pip
-
-# Устанавливаем рабочую директорию в контейнере
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем файл зависимостей и устанавливаем их
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+# Копируем зависимости отдельно для кэширования
+COPY requirements.txt .
 
-# Устанавливаем переменную окружения PYTHONPATH
-ENV PYTHONPATH="/app"
+# Обновляем pip и устанавливаем зависимости
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Копируем весь проект в контейнер
-COPY . /app/
+# Копируем остальные файлы проекта
+COPY . .
 
-# Проверим содержимое папки /app
-RUN ls -l /app
+# Указываем переменные окружения
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1
 
-# Указываем правильный файл для старта
+# Команда запуска (лучше использовать список вместо строки)
 CMD ["python3", "main.py"]
