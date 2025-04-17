@@ -69,7 +69,7 @@ def create_tables():
             """,
             """
             CREATE TABLE IF NOT EXISTS dialog_log (
-                session_id TEXT PRIMARY KEY,
+                session_id TEXT,
                 step INT NOT NULL,
                 user_id BIGINT NOT NULL,
                 username TEXT NOT NULL,
