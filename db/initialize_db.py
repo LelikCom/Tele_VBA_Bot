@@ -68,8 +68,7 @@ def create_tables():
             );
             """,
             """
-            CREATE TABLE dialog_log (
-                id SERIAL PRIMARY KEY,
+            CREATE TABLE IF NOT EXISTS dialog_log (
                 session_id TEXT NOT NULL,
                 step INT NOT NULL,
                 user_id BIGINT NOT NULL,
@@ -80,7 +79,8 @@ def create_tables():
                 id_answer INT,
                 answer TEXT,
                 time_answer TIMESTAMP,
-                point TEXT
+                point TEXT,
+                PRIMARY KEY (session_id, step)
             );
             """
         ]
