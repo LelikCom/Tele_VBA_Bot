@@ -103,7 +103,7 @@ async def cmd_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         None: Функция ничего не возвращает, но отправляет сообщения в чат.
     """
     user_id = update.effective_user.id
-    if not is_admin(user_id):
+    if not await is_admin(user_id):
         await update.message.reply_text("⛔ У вас нет доступа к админ-панели.")
         return
 

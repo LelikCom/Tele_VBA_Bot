@@ -18,6 +18,8 @@ from telegram import (
 )
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
+from os import getenv
+from dotenv import load_dotenv
 
 from db.users import get_user_role
 from db.admins import (
@@ -29,6 +31,9 @@ from db.admins import (
 from bot.core.utils.sql_utils import reply_with_log
 from log_dialog.models_daig import Point
 
+
+load_dotenv()
+ADMIN_CHAT_ID = int(getenv("ADMIN_CHAT_ID", "0"))
 
 async def handle_sql_entry(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
@@ -52,7 +57,7 @@ async def handle_sql_entry(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data.clear()
     context.user_data["state"] = "sql:choose_table"
 
-    table_names = await get_all_table_names()
+    table_names = await get_all_table_names(user_id)
     if not table_names:
         return await update.effective_message.reply_text("⚠️ Нет доступных таблиц в базе данных.")
 
@@ -121,7 +126,7 @@ async def handle_sql_all_query(update: Update, context: ContextTypes.DEFAULT_TYP
     sql = f"SELECT * FROM {table}"
 
     try:
-        df = await execute_custom_sql_query(sql)
+        df = await execute_custom_sql_query(sql, user_id=ADMIN_CHAT_ID)
     except Exception as e:
         logging.error(f"Ошибка при выполнении SQL-запроса: {e}")
         return await query.message.reply_text(

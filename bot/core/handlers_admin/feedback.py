@@ -117,7 +117,7 @@ async def show_feedback_item(update: Update, context: ContextTypes.DEFAULT_TYPE)
         logging.warning(f"Ошибка при отображении отзыва: {e}")
         await query.message.reply_text(f"⚠️ Ошибка при отправке: {e}")
 
-    mark_feedback_as_read(fid)
+    await mark_feedback_as_read(fid)
 
     # Кнопка "Ответить"
     reply_markup = InlineKeyboardMarkup([

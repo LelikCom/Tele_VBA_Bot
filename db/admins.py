@@ -15,13 +15,23 @@ from io import BytesIO
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
+from os import getenv
+from dotenv import load_dotenv
 
 from db.connection import get_db_connection
 
 
-async def get_all_table_names() -> List[str]:
+load_dotenv()
+ADMIN_CHAT_ID = int(getenv("ADMIN_CHAT_ID", "0"))
+
+
+async def get_all_table_names(user_id: int) -> List[str]:
     """
-    Возвращает список всех таблиц в схеме `public`.
+    Возвращает список всех таблиц в схеме `public`,
+    скрывая `user_contacts_vba` для не-админов.
+
+    Args:
+        user_id (int): ID Telegram-пользователя, запрашивающего список.
 
     Returns:
         List[str]: Список названий таблиц.
@@ -35,7 +45,13 @@ async def get_all_table_names() -> List[str]:
     try:
         async with get_db_connection() as conn:
             records = await conn.fetch(query)
-            return [r['table_name'] for r in records]
+            tables = [r['table_name'] for r in records]
+
+            # Фильтрация по роли
+            if user_id != ADMIN_CHAT_ID:
+                tables = [name for name in tables if name != 'user_contacts_vba']
+
+            return tables
     except Exception as e:
         logging.error(f"Не удалось получить список таблиц: {e}")
         return []
@@ -66,19 +82,26 @@ async def get_table_columns(table: str) -> List[Tuple[str, str]]:
         return []
 
 
-async def execute_custom_sql_query(query: str) -> pd.DataFrame:
+async def execute_custom_sql_query(query: str, user_id: int) -> pd.DataFrame:
     """
     Выполняет произвольный SQL-запрос и возвращает результат как DataFrame.
+    Только SELECT доступен для не-админов. Остальным — предупреждение.
 
     Args:
-        query (str): SQL-запрос (желательно SELECT).
+        query (str): SQL-запрос.
+        user_id (int): Telegram user_id, инициатор запроса.
 
     Returns:
-        pd.DataFrame: Результат запроса. Если запрос не возвращает данных — пустой DataFrame.
+        pd.DataFrame: Результат запроса или сообщение об ограничении.
     """
     try:
         async with get_db_connection() as conn:
             sql = query.strip().lower()
+
+            if user_id != ADMIN_CHAT_ID and not sql.startswith('select'):
+                logging.warning(f"⛔ Пользователь {user_id} пытался выполнить запрещённый запрос: {sql}")
+                return pd.DataFrame({"Ошибка": ["Не наглей, тебе доступен только SELECT"]})
+
             if sql.startswith('select'):
                 records = await conn.fetch(query)
                 if records:
@@ -88,11 +111,13 @@ async def execute_custom_sql_query(query: str) -> pd.DataFrame:
                 else:
                     return pd.DataFrame()
             else:
+                # Админу можно всё
                 await conn.execute(query)
                 return pd.DataFrame()
+
     except Exception as e:
         logging.error(f"Ошибка выполнения SQL-запроса: {e}")
-        return pd.DataFrame()
+        return pd.DataFrame({"Ошибка": [str(e)]})
 
 
 def df_to_excel_bytes(df: pd.DataFrame) -> BytesIO:

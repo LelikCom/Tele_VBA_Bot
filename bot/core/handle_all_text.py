@@ -69,7 +69,7 @@ async def handle_all_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if state == "sql:waiting_query":
-        if not is_admin(user_id):
+        if not await is_admin(user_id):
             await update.message.reply_text("⛔ У вас нет доступа к SQL.")
             return
 
@@ -79,7 +79,7 @@ async def handle_all_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             query_text = query_text.replace("table", table_name)
 
         try:
-            df = await execute_custom_sql_query(query_text)
+            df = await execute_custom_sql_query(query_text, user_id)
         except psycopg2.Error as e:
             msg = e.pgerror or str(e)
             return await update.message.reply_text(

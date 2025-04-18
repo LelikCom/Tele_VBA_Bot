@@ -31,7 +31,7 @@ async def admin_broadcast_entry(update: Update, context: ContextTypes.DEFAULT_TY
         context (ContextTypes.DEFAULT_TYPE): Контекст с состоянием пользователя.
     """
     user_id = update.effective_user.id
-    if not is_admin(user_id):
+    if not await is_admin(user_id):
         await update.callback_query.answer("⛔ Недостаточно прав.")
         return
 
