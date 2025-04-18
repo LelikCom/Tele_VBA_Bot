@@ -19,6 +19,16 @@ RANGE_PATTERN = re.compile(
 )
 
 
+def split_cell(cell: str):
+    """
+    Делит ячейку (например, A10) на буквы и цифры: ('A', 10)
+    """
+    match = re.match(r"^([A-Z]+)(\d+)$", cell)
+    if not match:
+        raise ValueError(f"Не удалось распознать ячейку: {cell}")
+    return match.group(1), match.group(2)
+
+
 def escape_markdown(text: str) -> str:
     """Экранирование специальных символов MarkdownV2"""
     escape_chars = r'_*\[\]()~`>#+-=|{}.!'

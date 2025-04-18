@@ -102,7 +102,7 @@ async def ask_column_waiting_step(update: Update, context: ContextTypes.DEFAULT_
     context.user_data["macro_step"] = "ask_start_cell"
     logging.info("Переходим к шагу: ask_start_cell")
 
-    next_prompt = "📍 С какой строки преобразовать? (Пример: 1, 2, 5 и т.д.)"
+    next_prompt = "📍 С какой строки преобразовать?\n Укажи цифру. \n Цифры выглядят так: 1, 2, 5"
     msg = await update.message.reply_text(next_prompt)
     await log_bot_answer(update, context, msg_obj=msg, answer_text=next_prompt)
 

@@ -13,3 +13,5 @@ class Point(str, Enum):
     UNKNOWN = "Неизвестно"
     CONTACT = "Контакт"
     COLUMN = "Столбец"
+    AUTH_INIT = "Номер"
+    AUTH_CONTACT = "Заявка"

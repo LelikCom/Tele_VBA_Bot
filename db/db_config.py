@@ -10,7 +10,6 @@ DB_SETTINGS = {
     "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD"),
     "port": int(os.getenv("DB_PORT", 5432)),
-    "host": "postgres_db",
 }
 
 
@@ -39,4 +38,9 @@ def get_working_host() -> str:
     raise ConnectionError("❌ Не удалось подключиться ни через localhost, ни через postgres_db")
 
 
-DB_SETTINGS["host"] = "postgres_db"
+# Определяем рабочий хост и сразу подставляем его в настройки
+try:
+    DB_SETTINGS["host"] = get_working_host()
+except ConnectionError as e:
+    logging.critical(f"[DB] {e}")
+    raise

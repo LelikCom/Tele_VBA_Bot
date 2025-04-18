@@ -107,7 +107,7 @@ async def get_all_users(update: Update, context: ContextTypes.DEFAULT_TYPE) -> M
     user_id = update.effective_user.id
     message = update.message or update.callback_query.message
 
-    user_role = get_user_role(user_id)
+    user_role = await get_user_role(user_id)
 
     if user_role == "rejected":
         return
@@ -115,7 +115,7 @@ async def get_all_users(update: Update, context: ContextTypes.DEFAULT_TYPE) -> M
     if user_id != ADMIN_USER_ID:
         return await message.reply_text("⛔ У вас нет прав на выполнение этой команды.")
 
-    roles = get_all_roles_from_db()
+    roles = await get_all_roles_from_db()
     if not roles:
         return await message.reply_text("⚠️ Нет доступных ролей в базе данных.")
 
@@ -148,7 +148,7 @@ async def handle_back_to_roles(update: Update, context: ContextTypes.DEFAULT_TYP
     query = update.callback_query
     await query.answer()
 
-    roles = get_all_roles_from_db()
+    roles = await get_all_roles_from_db()
     if not roles:
         return await query.edit_message_text("❌ Роли в базе данных не найдены.")
 

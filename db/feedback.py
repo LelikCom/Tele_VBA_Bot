@@ -1,16 +1,15 @@
-"""
-feedback.py
+import logging
+from typing import Optional, List, Tuple
+from db.connection import get_db_connection
 
+
+"""
 Модуль для работы с таблицей обратной связи `feedback` в базе данных PostgreSQL.
 Позволяет добавлять, извлекать, помечать прочитанными отзывы, а также загружать вложения.
 """
 
-import logging
-from typing import Optional, List, Tuple
-from db.connection import connect_db
 
-
-def add_feedback(
+async def add_feedback(
     user_id: int,
     theme: str,
     message: str,
@@ -34,22 +33,18 @@ def add_feedback(
 
     query = """
         INSERT INTO feedback (user_id, theme, message, is_read, attachment, attachment_type)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        VALUES ($1, $2, $3, $4, $5, $6)
     """
-    params = (user_id, theme, message, False, attachment, attachment_type)
-
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, params)
-                conn.commit()
+        async with get_db_connection() as conn:
+            await conn.execute(query, user_id, theme, message, False, attachment, attachment_type)
         logging.debug(f"[DB] Обратная связь от {user_id} успешно добавлена.")
     except Exception as e:
         logging.error(f"Ошибка при добавлении обратной связи от {user_id}: {e}")
         raise
 
 
-def fetch_unread_feedback(limit: int = 5, offset: int = 0) -> List[Tuple]:
+async def fetch_unread_feedback(limit: int = 5, offset: int = 0) -> List[Tuple]:
     """
     Извлекает список непрочитанных отзывов.
 
@@ -65,36 +60,33 @@ def fetch_unread_feedback(limit: int = 5, offset: int = 0) -> List[Tuple]:
         FROM feedback
         WHERE is_read = false
         ORDER BY created_at DESC
-        LIMIT %s OFFSET %s
+        LIMIT $1 OFFSET $2
     """
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, (limit, offset))
-                return cur.fetchall()
+        async with get_db_connection() as conn:
+            records = await conn.fetch(query, limit, offset)
+            return [tuple(r) for r in records]
     except Exception as e:
         logging.error(f"Ошибка при извлечении непрочитанных отзывов: {e}")
         return []
 
 
-def mark_feedback_as_read(feedback_id: int) -> None:
+async def mark_feedback_as_read(feedback_id: int) -> None:
     """
     Помечает отзыв как прочитанный.
 
     Args:
         feedback_id (int): Идентификатор записи обратной связи.
     """
-    query = "UPDATE feedback SET is_read = true WHERE id = %s"
+    query = "UPDATE feedback SET is_read = true WHERE id = $1"
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, (feedback_id,))
-                conn.commit()
+        async with get_db_connection() as conn:
+            await conn.execute(query, feedback_id)
     except Exception as e:
         logging.error(f"Ошибка при обновлении статуса отзыва {feedback_id}: {e}")
 
 
-def fetch_feedback_by_id(feedback_id: int) -> Optional[Tuple]:
+async def fetch_feedback_by_id(feedback_id: int) -> Optional[Tuple]:
     """
     Извлекает один отзыв по его идентификатору.
 
@@ -107,14 +99,13 @@ def fetch_feedback_by_id(feedback_id: int) -> Optional[Tuple]:
     query = """
         SELECT id, user_id, theme, message, attachment, attachment_type, created_at
         FROM feedback
-        WHERE id = %s
+        WHERE id = $1
         LIMIT 1
     """
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, (feedback_id,))
-                return cur.fetchone()
+        async with get_db_connection() as conn:
+            record = await conn.fetchrow(query, feedback_id)
+            return tuple(record) if record else None
     except Exception as e:
         logging.error(f"Ошибка при получении отзыва с ID={feedback_id}: {e}")
         return None

@@ -135,6 +135,7 @@ async def process_column_input(update: Update, context: ContextTypes.DEFAULT_TYP
     return msg
 
 
+@log_step(question_point=Point.START_ROW)
 async def ask_start_cell_step(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
     Обрабатывает ввод начальной строки и генерирует итоговый макрос.
@@ -166,10 +167,14 @@ async def ask_start_cell_step(update: Update, context: ContextTypes.DEFAULT_TYPE
     )
 
     if not user_input.isdigit():
-        error_text = "❌ Неверный формат номера строки.\nПример: 1,2 и т.д."
+        error_text = "❌ Неверный формат номера строки.\nНужны цифры. \nПример: 1, 2 и т.д."
         bot_msg = await send_response(update, error_text)
         await log_bot_answer(update, context, bot_msg, error_text)
         logging.warning(f"[START_CELL] Некорректный ввод строки: {user_input}")
+
+        repeat_text = "📍 С какой строки преобразовать?\n Укажи цифру. \n Цифры выглядят так: 1, 2, 5"
+        repeat_msg = await send_response(update, repeat_text)
+        await log_bot_answer(update, context, repeat_msg, repeat_text)
         return
 
     start_cell = int(user_input)
@@ -180,7 +185,7 @@ async def ask_start_cell_step(update: Update, context: ContextTypes.DEFAULT_TYPE
     confirm_msg = await send_response(update, confirm_text)
     await log_bot_answer(update, context, confirm_msg, confirm_text)
 
-    macro_template = fetch_macro_by_name("Преобразовать_столбец_в_число")
+    macro_template = await fetch_macro_by_name("Преобразовать_столбец_в_число")
     if not macro_template:
         error_text = "⚠️ Макрос 'Преобразовать столбец в число' не найден в базе данных."
         err_msg = await send_response(update, error_text)
@@ -212,6 +217,7 @@ async def ask_start_cell_step(update: Update, context: ContextTypes.DEFAULT_TYPE
     context.user_data["macro_step"] = "show_instruction"
     logging.info("[START_CELL] Переход к следующему шагу: show_instruction")
     await process_convert_column_scenario(update, context)
+
 
 
 

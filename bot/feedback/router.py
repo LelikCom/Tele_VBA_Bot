@@ -74,7 +74,7 @@ async def feedback_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         try:
             from db.feedback import add_feedback
-            add_feedback(user_id, theme, message_text, attachment, attachment_type)
+            await add_feedback(user_id, theme, message_text, attachment, attachment_type)
             await message.reply_text("✅ Спасибо! Сообщение получено.")
             logging.info(f"[DEBUG] Обратная связь сохранена от user_id={user_id}")
 

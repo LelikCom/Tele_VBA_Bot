@@ -29,8 +29,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Message:
         Message: Отправленное сообщение Telegram.
     """
     user = update.effective_user
-    save_user(user.id, user.username)
-    user_role = get_user_role(user.id)
+    await save_user(user.id, user.username)
+    user_role = await get_user_role(user.id)
 
     logging.info(f"[START] user_id={user.id} | username={user.username} | role={user_role}")
 

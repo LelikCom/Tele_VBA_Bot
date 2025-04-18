@@ -1,24 +1,15 @@
-"""
-dialog_log.py
-
-Модуль для работы с логами диалога (таблица dialog_log):
-- Вставка вопросов и ответов
-- Получение последней сессии
-- Генерация новой сессии
-"""
-
 import uuid
 import logging
 from datetime import datetime
 import pytz
-from db.connection import connect_db
+from db.connection import get_db_connection
 
 logger = logging.getLogger(__name__)
 moscow = pytz.timezone("Europe/Moscow")
 SESSION_TIMEOUT_MINUTES = 15
 
 
-def get_last_session(user_id: int):
+async def get_last_session(user_id: int):
     """
     Возвращает последнюю сессию пользователя.
 
@@ -31,15 +22,16 @@ def get_last_session(user_id: int):
     query = """
         SELECT session_id, step, time_question
         FROM dialog_log
-        WHERE user_id = %s
+        WHERE user_id = $1
         ORDER BY time_question DESC
         LIMIT 1
     """
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, (user_id,))
-                return cur.fetchone()
+        async with get_db_connection() as conn:
+            record = await conn.fetchrow(query, user_id)
+            if record:
+                return (record['session_id'], record['step'], record['time_question'])
+            return None
     except Exception as e:
         logger.error("Ошибка в get_last_session: %s", e)
         return None
@@ -55,7 +47,7 @@ def start_new_session() -> str:
     return str(uuid.uuid4())
 
 
-def insert_question(
+async def insert_question(
     session_id: str,
     step: int,
     user_id: int,
@@ -83,21 +75,20 @@ def insert_question(
             session_id, step, user_id, username,
             id_question, question, time_question, point
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     """
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, (
-                    session_id, step, user_id, username,
-                    message_id, question, time_question, point
-                ))
-                conn.commit()
+        async with get_db_connection() as conn:
+            await conn.execute(
+                query,
+                session_id, step, user_id, username,
+                message_id, question, time_question, point
+            )
     except Exception as e:
         logger.error("Ошибка в insert_question: %s", e)
 
 
-def insert_answer(
+async def insert_answer(
     user_id: int,
     message_id: int,
     answer: str,
@@ -114,21 +105,19 @@ def insert_answer(
     """
     query = """
         UPDATE dialog_log
-        SET id_answer = %s, answer = %s, time_answer = %s
-        WHERE user_id = %s AND id_answer IS NULL
+        SET id_answer = $1, answer = $2, time_answer = $3
+        WHERE user_id = $4 AND id_answer IS NULL
         AND step = (
             SELECT MAX(step)
             FROM dialog_log
-            WHERE user_id = %s AND id_answer IS NULL
+            WHERE user_id = $4 AND id_answer IS NULL
         )
     """
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, (
-                    message_id, answer, time_answer,
-                    user_id, user_id
-                ))
-                conn.commit()
+        async with get_db_connection() as conn:
+            await conn.execute(
+                query,
+                message_id, answer, time_answer, user_id
+            )
     except Exception as e:
         logger.error("Ошибка в insert_answer: %s", e)

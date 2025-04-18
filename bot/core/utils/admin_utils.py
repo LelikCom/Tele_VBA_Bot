@@ -6,16 +6,20 @@ admin_utils.py
 - Очистка состояний
 - Получение текущего времени по МСК
 """
-
+import logging
+import pytz
+from typing import List
 from datetime import datetime, timedelta, timezone
 from telegram.ext import ContextTypes
 
 from db.users import get_users_by_role
 
-MSK = timezone(timedelta(hours=3))
+# Устанавливаем московский часовой пояс
+MSK = pytz.timezone('Europe/Moscow')
 
 
-def get_now_msk() -> datetime:
+# Асинхронная функция для получения текущего времени в МСК
+async def get_now_msk() -> datetime:
     """
     Возвращает текущую дату и время в часовом поясе МСК.
 
@@ -25,7 +29,8 @@ def get_now_msk() -> datetime:
     return datetime.now(MSK)
 
 
-def reset_all_user_state(context: ContextTypes.DEFAULT_TYPE) -> None:
+# Асинхронная функция для очистки состояния пользователя
+async def reset_all_user_state(context: ContextTypes.DEFAULT_TYPE) -> None:
     """
     Очищает состояние пользователя в user_data.
 
@@ -35,7 +40,7 @@ def reset_all_user_state(context: ContextTypes.DEFAULT_TYPE) -> None:
     context.user_data.clear()
 
 
-def is_admin(user_id: int) -> bool:
+async def is_admin(user_id: int) -> bool:
     """
     Проверяет, является ли пользователь администратором.
 
@@ -46,7 +51,9 @@ def is_admin(user_id: int) -> bool:
         bool: True, если пользователь — админ, иначе False.
     """
     try:
-        admins = get_users_by_role("admin")
+        admins: List[int] = await get_users_by_role("admin")
         return user_id in admins
-    except Exception:
+    except Exception as e:
+        logging.error(f"Ошибка при проверке прав администратора: {e}")
         return False
+

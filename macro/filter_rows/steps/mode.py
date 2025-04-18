@@ -142,7 +142,7 @@ async def ask_mode(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Messag
     ])
 
     state.set_step(context.user_data, "wait_for_mode")
-    msg = await send_response(update, "📍Выберите способ задания значений:", keyboard)
+    msg = await send_response(update, "📍Выбери способ задания значений:", keyboard)
     return msg
 
 

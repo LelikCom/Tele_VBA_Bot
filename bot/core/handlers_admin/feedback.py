@@ -36,7 +36,7 @@ async def show_feedback_list(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await query.answer()
 
     offset = context.user_data.get("feedback_offset", 0)
-    rows = fetch_unread_feedback(limit=5, offset=offset)
+    rows = await fetch_unread_feedback(limit=5, offset=offset)
 
     if not rows:
         await query.message.edit_text("✅ Больше непрочитанных отзывов нет.")
@@ -89,7 +89,7 @@ async def show_feedback_item(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await query.message.reply_text("❌ Некорректный ID отзыва.")
         return
 
-    row = fetch_feedback_by_id(fid)
+    row = await fetch_feedback_by_id(fid)
     if not row:
         await query.message.reply_text("❌ Отзыв не найден или уже прочитан.")
         return

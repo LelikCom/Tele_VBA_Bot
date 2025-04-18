@@ -54,7 +54,7 @@ async def handle_all_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         theme_text = ""
         fid = data.get("fid")
         if fid:
-            row = fetch_feedback_by_id(fid)
+            row = await fetch_feedback_by_id(fid)
             if row:
                 theme = row[2] or "(не указана)"
                 theme_text = f"📝 Тема: {theme}\n\n"
@@ -79,7 +79,7 @@ async def handle_all_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             query_text = query_text.replace("table", table_name)
 
         try:
-            df = execute_custom_sql_query(query_text)
+            df = await execute_custom_sql_query(query_text)
         except psycopg2.Error as e:
             msg = e.pgerror or str(e)
             return await update.message.reply_text(

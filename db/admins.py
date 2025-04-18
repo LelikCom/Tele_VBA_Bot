@@ -16,10 +16,10 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 
-from db.connection import connect_db
+from db.connection import get_db_connection
 
 
-def get_all_table_names() -> List[str]:
+async def get_all_table_names() -> List[str]:
     """
     Возвращает список всех таблиц в схеме `public`.
 
@@ -33,16 +33,15 @@ def get_all_table_names() -> List[str]:
         ORDER BY table_name
     """
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query)
-                return [row[0] for row in cur.fetchall()]
+        async with get_db_connection() as conn:
+            records = await conn.fetch(query)
+            return [r['table_name'] for r in records]
     except Exception as e:
         logging.error(f"Не удалось получить список таблиц: {e}")
         return []
 
 
-def get_table_columns(table: str) -> List[Tuple[str, str]]:
+async def get_table_columns(table: str) -> List[Tuple[str, str]]:
     """
     Возвращает список колонок таблицы с их типами.
 
@@ -55,20 +54,19 @@ def get_table_columns(table: str) -> List[Tuple[str, str]]:
     query = """
         SELECT column_name, data_type
         FROM information_schema.columns
-        WHERE table_name = %s
+        WHERE table_name = $1
         ORDER BY ordinal_position
     """
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute(query, (table,))
-                return cur.fetchall()
+        async with get_db_connection() as conn:
+            records = await conn.fetch(query, table)
+            return [(r['column_name'], r['data_type']) for r in records]
     except Exception as e:
         logging.error(f"Не удалось получить колонки таблицы '{table}': {e}")
         return []
 
 
-def execute_custom_sql_query(query: str) -> pd.DataFrame:
+async def execute_custom_sql_query(query: str) -> pd.DataFrame:
     """
     Выполняет произвольный SQL-запрос и возвращает результат как DataFrame.
 
@@ -78,22 +76,23 @@ def execute_custom_sql_query(query: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Результат запроса. Если запрос не возвращает данных — пустой DataFrame.
     """
-    conn = connect_db()
     try:
-        with conn.cursor() as cur:
-            cur.execute(query)
-            if cur.description is not None:
-                columns = [desc[0] for desc in cur.description]
-                rows = cur.fetchall()
-                return pd.DataFrame(rows, columns=columns)
+        async with get_db_connection() as conn:
+            sql = query.strip().lower()
+            if sql.startswith('select'):
+                records = await conn.fetch(query)
+                if records:
+                    columns = list(records[0].keys())
+                    data = [tuple(r) for r in records]
+                    return pd.DataFrame(data, columns=columns)
+                else:
+                    return pd.DataFrame()
             else:
-                conn.commit()
+                await conn.execute(query)
                 return pd.DataFrame()
     except Exception as e:
         logging.error(f"Ошибка выполнения SQL-запроса: {e}")
         return pd.DataFrame()
-    finally:
-        conn.close()
 
 
 def df_to_excel_bytes(df: pd.DataFrame) -> BytesIO:
@@ -136,3 +135,4 @@ def df_to_excel_bytes(df: pd.DataFrame) -> BytesIO:
     wb.save(output)
     output.seek(0)
     return output
+

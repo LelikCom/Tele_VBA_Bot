@@ -48,7 +48,7 @@ async def handle_admin_speed_stats(update: Update, context: ContextTypes.DEFAULT
     await query.answer()
 
     period_code = query.data.split("_")[-1]
-    now = get_now_msk()
+    now = await get_now_msk()
 
     if period_code == "hour":
         since = now - timedelta(hours=1)
@@ -60,7 +60,7 @@ async def handle_admin_speed_stats(update: Update, context: ContextTypes.DEFAULT
         since = None
         label = "за всё время"
 
-    avg_seconds = get_average_response_time(since)
+    avg_seconds = await get_average_response_time(since)
 
     if avg_seconds is None:
         text = f"⚠ Нет данных {label}."

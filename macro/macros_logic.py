@@ -146,7 +146,7 @@ async def handle_macro_code(
     Returns:
         Optional[Message]: Ответное сообщение.
     """
-    macro_code = fetch_macro_by_name(macro_name)
+    macro_code = await fetch_macro_by_name(macro_name)
     if not macro_code:
         await send_error_message(update, f"Макрос {macro_name} не найден.")
         return

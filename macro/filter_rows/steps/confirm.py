@@ -54,7 +54,7 @@ async def confirm_macro(update: Update, context: ContextTypes.DEFAULT_TYPE) -> M
 
     try:
         logging.info("Пытаемся получить макрос по имени 'Фильтр_Строки'")
-        macro_template = fetch_macro_by_name("Фильтр_Строки")
+        macro_template = await fetch_macro_by_name("Фильтр_Строки")
 
         if not macro_template:
             raise ValueError("Макрос не найден в базе данных")

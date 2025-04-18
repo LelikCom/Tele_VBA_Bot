@@ -1,30 +1,75 @@
 """
-connection.py
-
-Модуль для создания подключения к базе данных PostgreSQL.
-Использует настройки из db_config.py.
+Модуль для асинхронного управления соединением к PostgreSQL через asyncpg.
+Содержит функции инициализации пула, получения и закрытия соединений.
 """
 
 import logging
-import psycopg2
-from .db_config import DB_SETTINGS
+import asyncpg
+from .db_config import DB_SETTINGS, get_working_host
+
+__all__ = ("init_db_pool", "close_db_pool", "get_db_connection")
+
+_db_pool: asyncpg.pool.Pool | None = None
 
 
-def connect_db():
+async def init_db_pool(min_size: int = 1, max_size: int = 10) -> None:
     """
-    Устанавливает соединение с базой данных PostgreSQL,
-    используя параметры из DB_SETTINGS.
+    Инициализирует глобальный пул соединений к базе данных PostgreSQL.
 
-    Returns:
-        connection (psycopg2.extensions.connection): Объект подключения к базе данных.
+    Args:
+        min_size (int): Минимальное число соединений в пуле (по умолчанию 1).
+        max_size (int): Максимальное число соединений в пуле (по умолчанию 10).
 
     Raises:
-        psycopg2.Error: В случае ошибки при подключении.
+        asyncpg.PostgresError: В случае ошибки при создании пула.
     """
-    try:
-        conn = psycopg2.connect(**DB_SETTINGS)
-        conn.set_client_encoding("UTF8")
-        return conn
-    except psycopg2.Error as e:
-        logging.critical(f"Не удалось подключиться к базе данных: {e}")
-        raise
+    global _db_pool
+    if _db_pool is None:
+        host = get_working_host()
+        settings = {**DB_SETTINGS, "host": host}
+        if "dbname" in settings:
+            settings["database"] = settings.pop("dbname")
+        try:
+            _db_pool = await asyncpg.create_pool(
+                **settings,
+                min_size=min_size,
+                max_size=max_size,
+            )
+            logging.info(f"AsyncPG pool initialized on host={host}")
+        except Exception as e:
+            logging.critical(f"Не удалось инициализировать пул БД: {e}")
+            raise
+
+
+async def close_db_pool() -> None:
+    """
+    Закрывает ранее инициализированный пул соединений.
+
+    Raises:
+        asyncpg.PostgresError: Если при закрытии пула произошла ошибка.
+    """
+    global _db_pool
+    if _db_pool is not None:
+        await _db_pool.close()
+        logging.info("AsyncPG pool closed")
+        _db_pool = None
+
+
+def get_db_connection() -> asyncpg.pool.PoolAcquireContext:
+    """
+    Возвращает контекстный менеджер для работы с одним соединением из пула.
+
+    Usage:
+        async with get_db_connection() as conn:
+            await conn.execute(...)
+
+    Returns:
+        asyncpg.pool.PoolAcquireContext: Контекст, дающий asyncpg.Connection.
+
+    Raises:
+        RuntimeError: Если пул еще не инициализирован.
+    """
+    global _db_pool
+    if _db_pool is None:
+        raise RuntimeError("Database pool is not initialized. Call init_db_pool() first.")
+    return _db_pool.acquire()

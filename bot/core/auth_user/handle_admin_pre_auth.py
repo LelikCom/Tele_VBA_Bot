@@ -35,7 +35,7 @@ async def handle_pre_auth_user_select(update: Update, context: ContextTypes.DEFA
             await query.edit_message_text("❌ Эта функция доступна только для preauth.")
             return
 
-        user_data = fetch_user_by_user_id(int(user_id_str))
+        user_data = await fetch_user_by_user_id(int(user_id_str))
         if not user_data:
             await query.edit_message_text("❌ Пользователь не найден.")
             return

@@ -42,7 +42,7 @@ async def setup_commands(app: Application) -> None:
     }
 
     for role, commands in role_commands.items():
-        user_ids = get_users_by_role(role)
+        user_ids = await get_users_by_role(role)
         for user_id in user_ids:
             try:
                 await app.bot.set_my_commands(

@@ -55,7 +55,7 @@ async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     try:
         user_id = update.effective_user.id
-        user_role = get_user_role(user_id)
+        user_role = await get_user_role(user_id)
         data = query.data
 
         action = next((key for key in allowed_actions if data == key or data.startswith(f"{key}:")), None)

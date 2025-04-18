@@ -8,6 +8,7 @@ sql_tools.py
 - Экспорт в Excel
 """
 
+import textwrap
 import logging
 from telegram import (
     Update,
@@ -38,7 +39,7 @@ async def handle_sql_entry(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         context (ContextTypes.DEFAULT_TYPE): Контекст.
     """
     user_id = update.effective_user.id
-    user_role = get_user_role(user_id)
+    user_role = await get_user_role(user_id)
 
     if user_role != "admin":
         return await reply_with_log(
@@ -51,14 +52,13 @@ async def handle_sql_entry(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data.clear()
     context.user_data["state"] = "sql:choose_table"
 
-    table_names = get_all_table_names()
+    table_names = await get_all_table_names()
     if not table_names:
         return await update.effective_message.reply_text("⚠️ Нет доступных таблиц в базе данных.")
 
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton(table, callback_data=f"sql_table_{table}")]
-        for table in table_names
-    ])
+    keyboard = InlineKeyboardMarkup([[
+        InlineKeyboardButton(table, callback_data=f"sql_table_{table}")
+        ] for table in table_names])
 
     await update.effective_message.reply_text(
         "📊 Выберите таблицу для просмотра и SQL-запросов:",
@@ -82,7 +82,7 @@ async def handle_sql_table_select(update: Update, context: ContextTypes.DEFAULT_
     context.user_data["state"] = "sql:waiting_query"
 
     try:
-        columns = get_table_columns(table)
+        columns = await get_table_columns(table)
     except Exception as e:
         logging.error(f"Ошибка получения колонок таблицы '{table}': {e}")
         return await query.message.reply_text(f"❌ Не удалось получить поля таблицы:\n{e}")
@@ -121,7 +121,7 @@ async def handle_sql_all_query(update: Update, context: ContextTypes.DEFAULT_TYP
     sql = f"SELECT * FROM {table}"
 
     try:
-        df = execute_custom_sql_query(sql)
+        df = await execute_custom_sql_query(sql)
     except Exception as e:
         logging.error(f"Ошибка при выполнении SQL-запроса: {e}")
         return await query.message.reply_text(
@@ -132,13 +132,20 @@ async def handle_sql_all_query(update: Update, context: ContextTypes.DEFAULT_TYP
     if df.empty:
         return await query.message.reply_text("⚠️ Таблица пуста.")
 
+    # Если таблица маленькая, отправляем текст
     if len(df) <= 10 and df.shape[1] <= 5:
         text = df.to_string(index=False)
+        # Ограничиваем длину текста, если он слишком большой
+        max_length = 4096
+        if len(text) > max_length:
+            text = textwrap.fill(text, max_length)  # Разбиваем текст на несколько частей
+
         return await query.message.reply_text(
             f"📥 Результат:\n<pre>{text}</pre>",
             parse_mode=ParseMode.HTML
         )
 
+    # Если таблица большая, отправляем Excel
     excel_buf = df_to_excel_bytes(df)
     await query.message.reply_document(
         document=InputFile(excel_buf, f"{table}.xlsx"),
@@ -146,5 +153,6 @@ async def handle_sql_all_query(update: Update, context: ContextTypes.DEFAULT_TYP
         parse_mode=ParseMode.HTML
     )
 
+    # Очищаем состояние пользователя
     context.user_data.pop("state", None)
     context.user_data.pop("sql_table", None)

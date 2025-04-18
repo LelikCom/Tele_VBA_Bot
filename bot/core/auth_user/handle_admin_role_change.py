@@ -49,7 +49,7 @@ async def handle_user_role_change_request(update: Update, context: ContextTypes.
             await query.edit_message_text("❌ Пользователь ещё не подтверждён.")
             return
 
-        user = fetch_user_by_user_id(user_id)
+        user = await fetch_user_by_user_id(user_id)
         if not user:
             await query.edit_message_text("❌ Пользователь не найден.")
             return
@@ -97,13 +97,13 @@ async def handle_role_change_confirmation(update: Update, context: ContextTypes.
         _, _, user_id_str, new_role = query.data.split("_", 3)
         user_id = int(user_id_str)
 
-        user = fetch_user_by_user_id(user_id)
+        user = await fetch_user_by_user_id(user_id)
         if not user:
             await query.edit_message_text("❌ Пользователь не найден.")
             return
 
         user_id, username, phone = user
-        current_role = get_user_role(user_id)
+        current_role = await get_user_role(user_id)
 
         text = (
             f"⚠ Вы уверены, что хотите изменить роль пользователя @{username or 'без username'} "

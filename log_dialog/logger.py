@@ -35,7 +35,7 @@ async def get_or_create_session(user_id: int) -> tuple[str, int]:
         tuple[str, int]: session_id и номер следующего шага.
     """
     now_msk = datetime.now(moscow).replace(tzinfo=None)
-    last_session = get_last_session(user_id)
+    last_session = await get_last_session(user_id)
 
     if last_session:
         session_id, last_step, last_time = last_session
@@ -70,7 +70,7 @@ async def log_question(
     """
     session_id, step = await get_or_create_session(user_id)
     now_msk = datetime.now(moscow).replace(tzinfo=None)
-    insert_question(session_id, step, user_id, username, message_id, message_text, point, now_msk)
+    await insert_question(session_id, step, user_id, username, message_id, message_text, point, now_msk)
 
 
 async def log_answer(
@@ -88,6 +88,6 @@ async def log_answer(
     """
     try:
         now_msk = datetime.now(moscow).replace(tzinfo=None)
-        insert_answer(user_id, message_id, answer_text, now_msk)
+        await insert_answer(user_id, message_id, answer_text, now_msk)
     except Exception as e:
         logging.error(f"[log_answer] Ошибка при вставке ответа: {e}")

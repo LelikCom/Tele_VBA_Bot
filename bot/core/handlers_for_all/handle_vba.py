@@ -56,7 +56,7 @@ async def handle_formulas(update: Update, context: ContextTypes.DEFAULT_TYPE):
         Message: Ответное сообщение или отредактированное сообщение с клавиатурой.
     """
 
-    formulas = fetch_all_formul_macros()
+    formulas = await fetch_all_formul_macros()
 
     buttons = [[InlineKeyboardButton(name, callback_data=f"formula:{name}")] for _, name, _, _ in formulas]
     buttons.append([InlineKeyboardButton("⬅️ В главное меню", callback_data="back_to_main")])
@@ -88,7 +88,7 @@ async def handle_macros(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Returns:
         Message: Сообщение с клавиатурой или отредактированное сообщение, если был callback.
     """
-    macros = fetch_all_macros()
+    macros = await fetch_all_macros()
     buttons = [[InlineKeyboardButton(name, callback_data=f"macro:{name}")] for _, name, _ in macros]
     buttons.append([InlineKeyboardButton("⬅️ В главное меню", callback_data="back_to_main")])
 
@@ -146,7 +146,7 @@ async def handle_instruction_yes(update: Update, context: ContextTypes.DEFAULT_T
     }
 
     user_id = update.effective_user.id
-    user_role = get_user_role(user_id)
+    user_role = await get_user_role(user_id)
     return await query.message.reply_text(
         text=instructions[instruction_type],
         parse_mode="Markdown",
@@ -173,8 +173,8 @@ async def handle_instruction_no(update: Update, context: ContextTypes.DEFAULT_TY
     username = update.effective_user.username
 
     # 🔄 Сохраняем/обновляем пользователя
-    save_user(user_id, username)
-    user_role = get_user_role(user_id)
+    await save_user(user_id, username)
+    user_role = await get_user_role(user_id)
 
     # 🔙 Возвращаем главное меню
     return await update.callback_query.message.reply_text(
@@ -204,8 +204,8 @@ async def handle_back_to_main(update: Update, context: ContextTypes.DEFAULT_TYPE
     username = update.effective_user.username
 
     # 🔄 Сохраняем/обновляем пользователя
-    save_user(user_id, username)
-    user_role = get_user_role(user_id)
+    await save_user(user_id, username)
+    user_role = await get_user_role(user_id)
 
     # 🧹 Очищаем временные данные пользователя
     context.user_data.clear()
@@ -241,7 +241,7 @@ async def handle_filter_role(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     # 📥 Извлечение выбранной роли
     selected_role = data.replace("filter_role_", "")
-    users = fetch_users_by_role(selected_role)
+    users = await fetch_users_by_role(selected_role)
 
     # 🔘 Формируем список кнопок
     buttons = []
@@ -303,7 +303,7 @@ async def handle_show_more_users(update: Update, context: ContextTypes.DEFAULT_T
         return await query.edit_message_text(f"❌ Неверный формат данных: {e}")
 
     # 📦 Получение следующей порции пользователей
-    users = get_users_by_role(role, limit=5, offset=offset)
+    users = await get_users_by_role(role, limit=5, offset=offset)
     if not users:
         return await query.edit_message_text(
             f"📭 Больше нет пользователей с ролью `{role}`.",
@@ -319,7 +319,7 @@ async def handle_show_more_users(update: Update, context: ContextTypes.DEFAULT_T
 
     # ➕ Кнопка "Показать ещё", если есть ещё пользователи
     next_offset = offset + 5
-    more_users = get_users_by_role(role, limit=1, offset=next_offset)
+    more_users = await get_users_by_role(role, limit=1, offset=next_offset)
     if more_users:
         buttons.append([
             InlineKeyboardButton("📥 Показать ещё", callback_data=f"show_more_{role}_{next_offset}")
@@ -385,7 +385,7 @@ async def handle_formula_detail(update: Update, context: ContextTypes.DEFAULT_TY
     """
     query = update.callback_query
     formula_name = query.data.split(":", 1)[1]
-    formula_data = fetch_formula_by_name(formula_name)
+    formula_data = await fetch_formula_by_name(formula_name)
 
     if not formula_data:
         return await query.message.reply_text("🔍 Формула не найдена")

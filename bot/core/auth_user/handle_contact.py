@@ -20,13 +20,15 @@ from telegram.constants import ParseMode
 
 from db.users import update_user_role
 
-from log_dialog.handlers_diag import log_bot_answer
+from log_dialog.handlers_diag import log_bot_answer, log_step
+from log_dialog.models_daig import Point
 
 ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT_ID"))
 
 logger = logging.getLogger(__name__)
 
 
+@log_step(question_point=Point.AUTH_CONTACT)
 async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
     Обрабатывает контакт пользователя (номер телефона), сохраняет его и отправляет заявку админу.
@@ -58,13 +60,12 @@ async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         f"• ID: {user.id}\n"
         f"• Номер: {clean_phone}"
     )
-    markup = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("✅ Подтвердить", callback_data=f"auth_approve_{user.id}_{clean_phone}"),
-            InlineKeyboardButton("❌ Отклонить", callback_data=f"auth_reject_{user.id}_{clean_phone}")
-        ],
-        [InlineKeyboardButton("🔙 Назад", callback_data="back_to_roles")]
-    ])
+    markup = InlineKeyboardMarkup([[
+        InlineKeyboardButton("✅ Подтвердить", callback_data=f"auth_approve_{user.id}_{clean_phone}"),
+        InlineKeyboardButton("❌ Отклонить", callback_data=f"auth_reject_{user.id}_{clean_phone}")
+    ], [
+        InlineKeyboardButton("🔙 Назад", callback_data="back_to_roles")
+    ]])
 
     await context.bot.send_message(
         chat_id=ADMIN_CHAT_ID,
@@ -76,6 +77,8 @@ async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     logger.info("Заявка отправлена администратору %s", ADMIN_CHAT_ID)
 
 
+# Применение декоратора log_step для handle_authorization
+@log_step(question_point=Point.AUTH_INIT)
 async def handle_authorization(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
     Инициирует процесс авторизации, отправляя пользователю клавиатуру для отправки номера телефона.
