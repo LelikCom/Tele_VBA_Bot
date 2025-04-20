@@ -1,16 +1,13 @@
-"""
-column.py
-
-Шаги сценария "Преобразовать столбец в число": запрос столбца и его обработка.
-"""
-
 import logging
 from telegram import Update, Message
 from telegram.ext import ContextTypes
+import re
 
+from log_dialog.logger import CustomLogger
 from macro.utils import parse_column, send_response
 from log_dialog.handlers_diag import log_bot_answer
-from macro.convert_to_num.steps.start_row import ask_start_cell_step
+
+logger = CustomLogger(log_to_console=True, log_to_file=True, log_file="column_log.log", log_level=logging.DEBUG, prefix="Column")
 
 
 async def ask_column_step(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -29,59 +26,48 @@ async def ask_column_step(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         "Укажи номер столбца или букву, например: «1» или «A».\n"
         "Если буква — только английская."
     )
-    msg: Message = await send_response(update, msg_text)
-    await log_bot_answer(update, context, msg, msg_text)
 
+    message: Message = await send_response(update, msg_text)
+
+    await log_bot_answer(
+        update=update,
+        context=context,
+        msg_obj=message,
+        answer_text=msg_text
+    )
+
+    logger.info(f"Отправлено сообщение пользователю: {msg_text}")
     context.user_data["macro_step"] = "ask_column_waiting"
+    logger.info(f"Переходим к шагу: ask_column_waiting для пользователя {update.effective_user.id}")
 
 
 async def ask_column_waiting_step(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
-    Обрабатывает ввод столбца от пользователя. Поддерживает числовой и буквенный формат.
-    Сохраняет выбор в context.user_data, логирует шаги, переходит к следующему этапу.
-
-    Args:
-        update (Update): Объект обновления Telegram, содержащий информацию о сообщении.
-        context (ContextTypes.DEFAULT_TYPE): Контекст с данными пользователя.
-
-    Returns:
-        None: Функция отправляет сообщения в чат в зависимости от состояния.
+    Обрабатывает ввод столбца от пользователя, поддерживает числовой и буквенный формат.
+    Сохраняет выбор в context.user_data, логирует шаги и переходит к следующему этапу.
     """
     if not update.message:
-        logging.error("Ожидается текстовое сообщение, но пришло что-то другое.")
+        logger.error("Ожидается текстовое сообщение, но пришло что-то другое.")
         return
 
     user_input = update.message.text.strip().upper()
-    logging.info(f"Получен ввод от пользователя: {user_input}")
+    logger.info(f"Получен ввод от пользователя: {user_input}")
 
-    if any('А' <= c <= 'Я' or 'а' <= c <= 'я' for c in user_input):
-        error_text = "❌ Не верный формат столбца.\n Проверь раскладку клавиатуры.\n Нужны только английские буквы.\n Пример: 1 или A."
-        error_msg = await update.message.reply_text(error_text)
-        await log_bot_answer(update, context, msg_obj=error_msg, answer_text=error_text)
-        logging.error(f"Ошибка парсинга столбца. Ввод пользователя: {user_input}")
-
-        repeat_text = (
-            "📍Какой столбец преобразовать?\n"
-            "Укажи номер столбца или букву, например: «1» или «A».\n"
-            "Если буква — только английская."
-        )
-        repeat_msg = await update.message.reply_text(repeat_text)
-        await log_bot_answer(update, context, msg_obj=repeat_msg, answer_text=repeat_text)
-        return
+    logger.debug(f"Пользователь {update.effective_user.id} ввел столбец: {user_input}")
 
     column_num = None
     if user_input.isdigit():
         column_num = int(user_input)
-    elif user_input.isalpha() and len(user_input) == 1:
+        logger.debug(f"Пользователь ввёл числовой столбец: {column_num}")
+    elif user_input.isalpha() and len(user_input) == 1 and re.match("^[A-Za-z]$", user_input):
         column_num = ord(user_input) - ord('A') + 1
-    elif len(user_input) > 1 and user_input.isalpha():
-        column_num = 0
-
-    if column_num is None or not (1 <= column_num <= 16384):
-        error_text = "❌ Неверный формат столбца.\nПроверьте раскладку клавиатуры.\nПример: 1 или A."
+        logger.debug(f"Пользователь ввёл буквенный столбец: {column_num}")
+    else:
+        error_text = "❌ Неверный формат столбца.\nПроверь раскладку клавиатуры.\nНужны только английские буквы.\nПример: 1 или A."
         error_msg = await update.message.reply_text(error_text)
+        logger.error(f"Ошибка парсинга столбца. Ввод пользователя: {user_input}")
+
         await log_bot_answer(update, context, msg_obj=error_msg, answer_text=error_text)
-        logging.error(f"Ошибка парсинга столбца. Ввод пользователя: {user_input}")
 
         repeat_text = (
             "📍Какой столбец преобразовать?\n"
@@ -92,18 +78,31 @@ async def ask_column_waiting_step(update: Update, context: ContextTypes.DEFAULT_
         await log_bot_answer(update, context, msg_obj=repeat_msg, answer_text=repeat_text)
         return
 
-    context.user_data["column_num"] = column_num
-    logging.info(f"Сохранён номер столбца: {column_num}")
+    if not (1 <= column_num <= 16384):
+        error_text = "❌ Неверный номер столбца. Должен быть от 1 до 16384."
+        error_msg = await update.message.reply_text(error_text)
+        logger.error(f"Ошибка парсинга столбца. Ввод пользователя: {user_input}")
 
-    confirm_text = f"✅ Выбран столбец: {column_num}"
+        await log_bot_answer(update, context, msg_obj=error_msg, answer_text=error_text)
+        return await ask_column_step(update, context)
+
+    context.user_data["column_num"] = column_num
+    context.user_data["column_input_type"] = "letter" if user_input.isalpha() else "number"
+    logger.info(f"Сохранён номер столбца: {column_num}")
+
+    confirm_text = f"✅ Выбран столбец без проверки: {column_num}"
     confirm_msg = await update.message.reply_text(confirm_text)
+
+    logger.debug(f"Перед вызовом log_bot_answer: confirm_msg={confirm_msg}, confirm_text={confirm_text}")
     await log_bot_answer(update, context, msg_obj=confirm_msg, answer_text=confirm_text)
 
     context.user_data["macro_step"] = "ask_start_cell"
-    logging.info("Переходим к шагу: ask_start_cell")
+    logger.info(f"Переходим к шагу: {context.user_data} для пользователя {update.effective_user.id}")
 
     next_prompt = "📍 С какой строки преобразовать?\n Укажи цифру. \n Цифры выглядят так: 1, 2, 5"
     msg = await update.message.reply_text(next_prompt)
     await log_bot_answer(update, context, msg_obj=msg, answer_text=next_prompt)
 
+    logger.info(f"Отправлено сообщение с запросом на следующую строку для пользователя {update.effective_user.id}")
 
+    return confirm_msg

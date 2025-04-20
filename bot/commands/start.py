@@ -21,6 +21,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Message:
     """
     Обработчик команды /start. Показывает главное меню в зависимости от роли пользователя.
 
+    Также сбрасывает контекст пользователя для начала нового процесса.
+
     Args:
         update (Update): Объект Telegram обновления.
         context (ContextTypes.DEFAULT_TYPE): Контекст выполнения.
@@ -28,6 +30,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Message:
     Returns:
         Message: Отправленное сообщение Telegram.
     """
+    # Очищаем все данные пользователя
+    context.user_data.clear()
+    # Завершаем любой разговор (если есть)
+    context.chat_data.clear()
+
     user = update.effective_user
     await save_user(user.id, user.username)
     user_role = await get_user_role(user.id)
@@ -76,3 +83,4 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Message:
             )
 
     return await send_response(update, welcome_text, keyboard=get_main_menu_keyboard(user_role))
+

@@ -29,7 +29,7 @@ async def ask_sheet_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         None: Функция отправляет запрос и устанавливает следующий шаг.
     """
     prompt_text = (
-        "📍 Введите имя листа.\n"
+        "📍 Отправь имя листа.\n"
         "Лучше скопировать из файла, чтобы не ошибаться 🤓"
     )
     msg = await send_response(update, prompt_text)

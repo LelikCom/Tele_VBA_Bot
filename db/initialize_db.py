@@ -65,6 +65,21 @@ async def create_tables() -> None:
             time_answer TIMESTAMP,
             point TEXT
         );
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS rejected_dialog_log (
+            session_id TEXT NOT NULL,
+            step INT NOT NULL,
+            user_id BIGINT NOT NULL,
+            username TEXT NOT NULL,
+            id_question INT NOT NULL,
+            question TEXT NOT NULL,
+            time_question TIMESTAMP NOT NULL,
+            id_answer INT,
+            answer TEXT,
+            time_answer TIMESTAMP,
+            point TEXT
+        );
         """
     ]
     async with get_db_connection() as conn:

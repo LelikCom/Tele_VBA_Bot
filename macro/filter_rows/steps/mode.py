@@ -14,7 +14,8 @@ from macro.filter_rows import state
 from log_dialog.models_daig import Point
 
 from log_dialog.handlers_diag import (
-    log_step
+    log_step,
+    log_bot_answer,
 )
 
 from macro.filter_rows.steps.column import (
@@ -103,7 +104,6 @@ async def process_filter_rows_scenario(update: Update, context: ContextTypes.DEF
     }
 
     step = context.user_data.get("macro_step", "ask_column")
-    print(f"Текущий шаг сценария: {step}")
 
     try:
         if step in handlers:
@@ -181,14 +181,21 @@ async def ask_manual_values(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Returns:
         None
     """
-    await send_response(
+    message = await send_response(
         update,
         "✍️ Введи значения через запятую:\nПример: Яблоки, 123, Текст"
     )
+
     state.set_step(context.user_data, "process_manual_values")
 
-    # Логируем текущий шаг после установки
     logging.info(f"Текущий шаг после установки: {context.user_data.get('macro_step')}")
+
+    await log_bot_answer(
+        update=update,
+        context=context,
+        msg_obj=message,
+        answer_text="✍️ Введи значения через запятую:\nПример: Яблоки, 123, Текст"
+    )
 
 
 async def process_manual_values(update: Update, context: ContextTypes.DEFAULT_TYPE):

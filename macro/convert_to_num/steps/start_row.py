@@ -13,9 +13,9 @@ from log_dialog.models_daig import Point
 from log_dialog.handlers_diag import log_step
 from db.macros import fetch_macro_by_name
 from macro.utils import send_response, escape_markdown_v2
-from log_dialog.handlers_diag import log_bot_answer, log_question
+from db.dialog_log import insert_question
+from log_dialog.handlers_diag import log_bot_answer
 
-from macro.filter_rows.steps.column import ask_column
 from macro.convert_to_num.steps import (
     column,
     confirm,
@@ -84,57 +84,6 @@ async def process_convert_column_scenario(update: Update, context: ContextTypes.
         return
 
 
-@log_step(
-    question_point=Point.COLUMN,
-    answer_text_getter=lambda msg: msg.text or "Ответ без текста"
-)
-async def process_column_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Message:
-    """
-    Обрабатывает ввод столбца и сохраняет его в состояние.
-
-    Функция проверяет, является ли введённый столбец числовым или буквенным, затем
-    сохраняет его в состоянии пользователя, логирует выбранный столбец и переходит
-    к следующему этапу, где пользователь будет запрашивать строку для начала.
-
-    Args:
-        update (Update): Объект обновления Telegram, содержащий информацию о сообщении.
-        context (ContextTypes.DEFAULT_TYPE): Контекст с данными пользователя.
-
-    Returns:
-        Message: Ответное сообщение от бота.
-    """
-    logging.info(f"[PROCESS_COLUMN_INPUT] Ввод столбца: {update.message.text}")
-    user_input = update.message.text.strip().upper()
-
-    if user_input.isdigit():
-        column_num = int(user_input)
-        if not (1 <= column_num <= 16384):
-            await send_response(update, "❌ Неверный номер столбца. Должен быть от 1 до 16384.")
-            return await ask_column(update, context)
-    elif user_input.isalpha() and len(user_input) == 1:
-        column_num = ord(user_input) - ord('A') + 1
-        if not (1 <= column_num <= 16384):
-            await send_response(update, "❌ Неверный номер столбца. Должен быть от 1 до 16384.")
-            return await ask_column(update, context)
-    else:
-        await send_response(update, "❌ Неверный формат столбца.\nВведи номер или букву столбца.")
-        return await ask_column(update, context)
-
-    column_num = column_letter_to_number(column_num)
-
-    context.user_data["column_num"] = column_num
-    context.user_data["column_input_type"] = "letter" if user_input.isalpha() else "number"
-
-    logging.info(f"[PROCESS_COLUMN_INPUT] Выбран столбец: {column_num}")
-
-    msg = await send_response(update, f"✅ Выбран столбец: {column_num}")
-    await send_response(update, "📍Теперь укажи строку, с которой начнём.\nНапример: 1 или 2.")
-
-    context.user_data["macro_step"] = "ask_start_cell"
-
-    return msg
-
-
 @log_step(question_point=Point.START_ROW)
 async def ask_start_cell_step(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
@@ -158,7 +107,7 @@ async def ask_start_cell_step(update: Update, context: ContextTypes.DEFAULT_TYPE
     user_input = update.message.text.strip()
     logging.info(f"[START_CELL] Введено пользователем: {user_input}")
 
-    await log_question(
+    await insert_question(
         user_id=update.effective_user.id,
         username=update.effective_user.username,
         message_id=update.message.message_id,

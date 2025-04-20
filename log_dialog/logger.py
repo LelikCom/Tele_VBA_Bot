@@ -1,93 +1,67 @@
-"""
-logger.py
-
-Логика логирования диалога:
-- log_question: сохраняет сообщение пользователя
-- log_answer: сохраняет ответ бота
-"""
-
 import logging
-from datetime import datetime, timedelta
-import pytz
-from dateutil import parser
-
-from db.dialog_log import (
-    get_last_session,
-    start_new_session,
-    insert_question,
-    insert_answer,
-    SESSION_TIMEOUT_MINUTES
-)
+import os
 
 
-moscow = pytz.timezone("Europe/Moscow")
+class CustomLogger:
+    def __init__(self, log_to_console=True, log_to_file=True, log_file="app.log", log_level=logging.DEBUG, log_dir="logs", prefix=""):
+        """
+        Инициализация кастомного логгера с возможностью задать уровень и префикс.
 
+        Args:
+            log_to_console (bool): Выводить ли логи в консоль.
+            log_to_file (bool): Сохранять ли логи в файл.
+            log_file (str): Путь к файлу логов.
+            log_level (int): Уровень логирования.
+            log_dir (str): Директория для хранения логов.
+            prefix (str): Приставка для логов.
+        """
+        if log_to_file and not os.path.exists(log_dir):
+            os.makedirs(log_dir)
 
-async def get_or_create_session(user_id: int) -> tuple[str, int]:
-    """
-    Проверяет активную сессию пользователя. Возвращает session_id и следующий step.
-    Если прошло более SESSION_TIMEOUT_MINUTES — создаёт новую сессию.
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(log_level)
 
-    Args:
-        user_id (int): ID пользователя.
+        log_format = '%(asctime)s [%(levelname)s] %(message)s'
+        formatter = logging.Formatter(log_format)
 
-    Returns:
-        tuple[str, int]: session_id и номер следующего шага.
-    """
-    now_msk = datetime.now(moscow).replace(tzinfo=None)
-    last_session = await get_last_session(user_id)
+        if log_to_console:
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(formatter)
+            self.logger.addHandler(console_handler)
 
-    if last_session:
-        session_id, last_step, last_time = last_session
+        if log_to_file:
+            file_handler = logging.FileHandler(os.path.join(log_dir, log_file))
+            file_handler.setFormatter(formatter)
+            self.logger.addHandler(file_handler)
 
-        if isinstance(last_time, str):
-            last_time = parser.parse(last_time)
-        if isinstance(last_time, datetime):
-            last_time = last_time.replace(tzinfo=None)
+        self.prefix = prefix
 
-        if (now_msk - last_time) < timedelta(minutes=SESSION_TIMEOUT_MINUTES):
-            return session_id, last_step + 1
+    def _log_with_prefix(self, level, message):
+        """Добавляет префикс и вызывает стандартное логирование"""
+        if self.prefix:
+            message = f"[{self.prefix}] {message}"
+        if level == logging.DEBUG:
+            self.logger.debug(message)
+        elif level == logging.INFO:
+            self.logger.info(message)
+        elif level == logging.WARNING:
+            self.logger.warning(message)
+        elif level == logging.ERROR:
+            self.logger.error(message)
+        elif level == logging.CRITICAL:
+            self.logger.critical(message)
 
-    return start_new_session(), 1
+    def debug(self, message):
+        self._log_with_prefix(logging.DEBUG, message)
 
+    def info(self, message):
+        self._log_with_prefix(logging.INFO, message)
 
-async def log_question(
-    user_id: int,
-    username: str,
-    message_id: int,
-    message_text: str,
-    point: str
-) -> None:
-    """
-    Логирует сообщение пользователя.
+    def warning(self, message):
+        self._log_with_prefix(logging.WARNING, message)
 
-    Args:
-        user_id (int): Telegram ID.
-        username (str): username Telegram.
-        message_id (int): ID сообщения.
-        message_text (str): Текст.
-        point (str): Точка сценария.
-    """
-    session_id, step = await get_or_create_session(user_id)
-    now_msk = datetime.now(moscow).replace(tzinfo=None)
-    await insert_question(session_id, step, user_id, username, message_id, message_text, point, now_msk)
+    def error(self, message):
+        self._log_with_prefix(logging.ERROR, message)
 
-
-async def log_answer(
-    user_id: int,
-    message_id: int,
-    answer_text: str
-) -> None:
-    """
-    Логирует ответ бота к последнему шагу.
-
-    Args:
-        user_id (int): Telegram ID.
-        message_id (int): ID сообщения ответа.
-        answer_text (str): Ответ бота.
-    """
-    try:
-        now_msk = datetime.now(moscow).replace(tzinfo=None)
-        await insert_answer(user_id, message_id, answer_text, now_msk)
-    except Exception as e:
-        logging.error(f"[log_answer] Ошибка при вставке ответа: {e}")
+    def critical(self, message):
+        self._log_with_prefix(logging.CRITICAL, message)

@@ -108,18 +108,15 @@ async def handle_macros(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_instruction_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Message:
     """
     Обрабатывает подтверждение пользователя на просмотр инструкции.
-
-    Отправляет пользователю подробную инструкцию по добавлению формулы или макроса
-    в редактор VBA Excel, в зависимости от типа выбранного объекта.
-
-    Args:
-        update (Update): Объект Telegram-обновления, содержащий callback-запрос.
-        context (ContextTypes.DEFAULT_TYPE): Контекст взаимодействия пользователя с ботом.
-
-    Returns:
-        Message: Отправленное сообщение с инструкцией и главной клавиатурой.
     """
     query = update.callback_query
+    user_id = update.effective_user.id
+    user_role = await get_user_role(user_id)
+
+    # Проверяем роль пользователя
+    if user_role == 'rejected':
+        return await query.message.reply_text("⚠ У вас нет прав для выполнения данного действия.")
+
     instruction_type = context.user_data.get("instruction_type", "macro")
     name = context.user_data.get(f"current_{instruction_type}_name", "Неизвестно")
     name_escaped = escape_markdown(name)
@@ -145,8 +142,11 @@ async def handle_instruction_yes(update: Update, context: ContextTypes.DEFAULT_T
         )
     }
 
-    user_id = update.effective_user.id
-    user_role = await get_user_role(user_id)
+    # Очищаем все данные пользователя
+    context.user_data.clear()
+    # Завершаем любой разговор (если есть)
+    context.chat_data.clear()
+
     return await query.message.reply_text(
         text=instructions[instruction_type],
         parse_mode="Markdown",
@@ -157,26 +157,26 @@ async def handle_instruction_yes(update: Update, context: ContextTypes.DEFAULT_T
 @log_step(question_point=Point.CONFIRM, answer_text_getter=lambda msg: msg.text)
 async def handle_instruction_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Message:
     """
-    Обрабатывает отказ пользователя от показа инструкции после выбора макроса или формулы.
-
-    Сохраняет пользователя в базе (на случай новых) и возвращает главное меню
-    в виде нового сообщения с соответствующей клавиатурой.
-
-    Args:
-        update (Update): Объект обновления от Telegram.
-        context (ContextTypes.DEFAULT_TYPE): Контекст с данными пользователя.
-
-    Returns:
-        Message: Сообщение с главным меню.
+    Обрабатывает отказ пользователя от показа инструкции.
     """
     user_id = update.effective_user.id
     username = update.effective_user.username
 
-    # 🔄 Сохраняем/обновляем пользователя
-    await save_user(user_id, username)
     user_role = await get_user_role(user_id)
 
-    # 🔙 Возвращаем главное меню
+    # Проверяем роль пользователя
+    if user_role == 'rejected':
+        return await update.callback_query.message.reply_text("⚠ У вас нет прав для выполнения данного действия.")
+
+    # Сохраняем/обновляем пользователя
+    await save_user(user_id, username)
+
+    # Очищаем все данные пользователя
+    context.user_data.clear()
+    # Завершаем любой разговор (если есть)
+    context.chat_data.clear()
+
+    # Возвращаем главное меню
     return await update.callback_query.message.reply_text(
         "🏠 Главное меню",
         reply_markup=get_main_menu_keyboard(user_role)

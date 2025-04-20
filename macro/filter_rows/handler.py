@@ -9,8 +9,6 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from log_dialog.models_daig import Point
-from log_dialog.handlers_diag import log_step
 from macro.filter_rows import state
 from macro.filter_rows.steps import (
     column, mode, range, sheet, confirm
@@ -18,7 +16,6 @@ from macro.filter_rows.steps import (
 from macro.utils import send_response
 
 
-@log_step(question_point=Point.SCENARIO, answer_text_getter=lambda msg: msg.text if msg.text else "attachment")
 async def process_filter_rows_scenario(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Главный обработчик сценария фильтрации строк.
@@ -50,7 +47,6 @@ async def process_filter_rows_scenario(update: Update, context: ContextTypes.DEF
     }
 
     step = state.get_step(context.user_data)
-    print(f"🧩 Текущий шаг сценария: {step}")
 
     try:
         if step in handlers:

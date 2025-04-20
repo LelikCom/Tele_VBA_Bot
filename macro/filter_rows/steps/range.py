@@ -84,11 +84,9 @@ async def process_range_input(update: Update, context: ContextTypes.DEFAULT_TYPE
             range_part = cleaned_input.upper()
             final_range = range_part
 
-        # Проверка символов диапазона
         if not re.match(r"^[A-Z]+\d+:[A-Z]+\d+$", range_part):
-            raise ValueError("Диапазон должен содержать только английские буквы и цифры.\nПроверь раскладку клавиатуры.\n.Например: С1:F15")
+            raise ValueError("Диапазон должен содержать только английские буквы и цифры.\nПроверь раскладку клавиатуры.\nНапример: С1:F15")
 
-        # Разбор ячеек и проверка порядка
         start_cell, end_cell = range_part.split(":")
         if not validate_cell(start_cell) or not validate_cell(end_cell):
             raise ValueError("Одна из ячеек указана некорректно.")

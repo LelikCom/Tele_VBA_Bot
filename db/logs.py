@@ -39,19 +39,34 @@ async def get_bot_messages_for_user(user_id: int) -> List[int]:
 
 async def delete_bot_messages_for_user(user_id: int) -> None:
     """
-    Удаляет записи из dialog_log, содержащие id сообщений от бота для указанного пользователя.
+    Удаляет все записи из dialog_log для указанного пользователя,
+    предварительно перенося их в таблицу rejected_dialog_log.
 
     Args:
         user_id (int): Telegram ID пользователя.
     """
-    query = """
-        DELETE FROM dialog_log
-        WHERE user_id = $1 AND id_answer IS NOT NULL
+    # Переносим все сообщения в rejected_dialog_log
+    insert_query = """
+        INSERT INTO rejected_dialog_log
+        SELECT * FROM dialog_log
+        WHERE user_id = $1
     """
+
+    # Удаляем все сообщения из dialog_log
+    delete_query = """
+        DELETE FROM dialog_log
+        WHERE user_id = $1
+    """
+
     try:
         async with get_db_connection() as conn:
-            await conn.execute(query, user_id)
-        logging.debug(f"Удалены сообщения бота для пользователя {user_id}")
+            # Переносим данные в rejected_dialog_log
+            await conn.execute(insert_query, user_id)
+
+            # Удаляем все сообщения из dialog_log
+            await conn.execute(delete_query, user_id)
+
+        logging.debug(f"Удалены все сообщения для пользователя {user_id} после переноса в rejected_dialog_log.")
     except Exception as e:
         logging.error(f"Ошибка при удалении сообщений бота для user_id={user_id}: {e}")
 
