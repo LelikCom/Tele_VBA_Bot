@@ -90,7 +90,7 @@ async def ask_column_waiting_step(update: Update, context: ContextTypes.DEFAULT_
     context.user_data["column_input_type"] = "letter" if user_input.isalpha() else "number"
     logger.info(f"Сохранён номер столбца: {column_num}")
 
-    confirm_text = f"✅ Выбран столбец без проверки: {column_num}"
+    confirm_text = f"✅ Выбран столбец: {column_num}"
     confirm_msg = await update.message.reply_text(confirm_text)
 
     logger.debug(f"Перед вызовом log_bot_answer: confirm_msg={confirm_msg}, confirm_text={confirm_text}")

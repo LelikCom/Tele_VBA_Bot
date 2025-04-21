@@ -74,13 +74,13 @@ async def process_column_input(update: Update, context: ContextTypes.DEFAULT_TYP
         return await ask_column(update, context)
 
     context.user_data["column_num"] = column_num
-    message = await send_response(update, f"✅ Выбран столбец filter_rows: {column_num}")
+    message = await send_response(update, f"✅ Выбран столбец: {column_num}")
 
     await log_bot_answer(
         update=update,
         context=context,
         msg_obj=message,
-        answer_text=f"✅ Выбран столбец filter_rows {column_num}"
+        answer_text=f"✅ Выбран столбец {column_num}"
     )
 
     state.set_step(context.user_data, "ask_mode")
