@@ -14,8 +14,11 @@ from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     Message,
+    constants,
 )
-from telegram.ext import ContextTypes
+from deepseek.experimental import BUTTON_LABEL
+
+from telegram.ext import CallbackQueryHandler, ContextTypes
 from telegram.constants import ParseMode
 
 from macro.utils import (
@@ -41,8 +44,10 @@ from macro.macros_logic import (
     run_macro_scenario,
     show_instruction_options,
 )
+from deepseek.experimental import WARNING_TEXT, back_keyboard
 
 
+# ------------------------------------------------------------------
 @log_step(question_point=Point.SCENARIO, answer_text_getter=lambda msg: msg.text)
 async def handle_formulas(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
@@ -55,24 +60,35 @@ async def handle_formulas(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Returns:
         Message: Ответное сообщение или отредактированное сообщение с клавиатурой.
     """
-
     formulas = await fetch_all_formul_macros()
 
-    buttons = [[InlineKeyboardButton(name, callback_data=f"formula:{name}")] for _, name, _, _ in formulas]
-    buttons.append([InlineKeyboardButton("⬅️ В главное меню", callback_data="back_to_main")])
+    # 👉 добавляем экспериментальную кнопку первой строкой
+    buttons: list[list[InlineKeyboardButton]] = [
+        [InlineKeyboardButton(BUTTON_LABEL, callback_data="experimental_ai")]
+    ]
+    # затем — формулы из БД
+    buttons += [
+        [InlineKeyboardButton(name, callback_data=f"formula:{name}")]
+        for _, name, _, _ in formulas
+    ]
+    # “назад”
+    buttons.append(
+        [InlineKeyboardButton("⬅️ В главное меню", callback_data="back_to_main")]
+    )
 
     if update.callback_query:
         return await update.callback_query.edit_message_text(
             "📚 Выбери нужную формулу:",
-            reply_markup=InlineKeyboardMarkup(buttons)
+            reply_markup=InlineKeyboardMarkup(buttons),
         )
     else:
         return await update.message.reply_text(
             "📚 Выбери нужную формулу:",
-            reply_markup=InlineKeyboardMarkup(buttons)
+            reply_markup=InlineKeyboardMarkup(buttons),
         )
 
 
+# ------------------------------------------------------------------
 @log_step(question_point=Point.SCENARIO, answer_text_getter=lambda msg: msg.text)
 async def handle_macros(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
@@ -89,18 +105,27 @@ async def handle_macros(update: Update, context: ContextTypes.DEFAULT_TYPE):
         Message: Сообщение с клавиатурой или отредактированное сообщение, если был callback.
     """
     macros = await fetch_all_macros()
-    buttons = [[InlineKeyboardButton(name, callback_data=f"macro:{name}")] for _, name, _ in macros]
-    buttons.append([InlineKeyboardButton("⬅️ В главное меню", callback_data="back_to_main")])
+
+    buttons: list[list[InlineKeyboardButton]] = [
+        [InlineKeyboardButton(BUTTON_LABEL, callback_data="experimental_ai")]
+    ]
+    buttons += [
+        [InlineKeyboardButton(name, callback_data=f"macro:{name}")]
+        for _, name, _ in macros
+    ]
+    buttons.append(
+        [InlineKeyboardButton("⬅️ В главное меню", callback_data="back_to_main")]
+    )
 
     if update.callback_query:
         return await update.callback_query.edit_message_text(
             "⚙️ Выбери нужный макрос:",
-            reply_markup=InlineKeyboardMarkup(buttons)
+            reply_markup=InlineKeyboardMarkup(buttons),
         )
     else:
         return await update.message.reply_text(
             "⚙️ Выбери нужный макрос:",
-            reply_markup=InlineKeyboardMarkup(buttons)
+            reply_markup=InlineKeyboardMarkup(buttons),
         )
 
 
@@ -434,3 +459,20 @@ async def handle_joke_of_the_day(update: Update, context: ContextTypes.DEFAULT_T
         "🎭 Шутка дня:\nТук тук",
         point=Point.JOKE
     )
+
+
+async def experimental_ai_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Показываем предупреждение."""
+    query = update.callback_query
+    await query.answer()
+    await query.message.reply_text(
+        WARNING_TEXT,
+        reply_markup=back_keyboard(),
+        parse_mode=constants.ParseMode.HTML
+    )
+
+async def back_to_prev_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Прячем предупреждение и просто удаляем сообщение (минимальная логика)."""
+    query = update.callback_query
+    await query.answer()
+    await query.message.delete()

@@ -5,5 +5,7 @@
     "sql_requests": ["auth", "admin"],
     "joke_of_the_day": ["auth", "admin"],
     "feedback": ["auth", "admin"],
-    "admin_panel": ["admin"]
+    "admin_panel": ["admin"],
+    "experimental_ai": ["admin"],
+    "back_to_prev": ["admin"]
 }
