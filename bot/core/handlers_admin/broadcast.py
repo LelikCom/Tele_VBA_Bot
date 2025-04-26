@@ -246,7 +246,8 @@ async def handle_broadcast_confirm(update: Update, context: ContextTypes.DEFAULT
         roles = await get_all_roles_from_db()
         user_ids = []
         for role in roles:
-            await user_ids.extend(get_users_by_role(role))
+            users_for_role = await get_users_by_role(role)
+            user_ids.extend(users_for_role)
         user_ids = list(set(user_ids))
     else:
         user_ids = await get_users_by_role(target_role)
