@@ -249,6 +249,14 @@ async def handle_broadcast_confirm(update: Update, context: ContextTypes.DEFAULT
             users_for_role = await get_users_by_role(role)
             user_ids.extend(users_for_role)
         user_ids = list(set(user_ids))
+    elif target_role == "auth":
+        # Добавляем сразу пользователей и auth, и deepauth
+        user_ids = []
+        auth_users = await get_users_by_role("auth")
+        deepauth_users = await get_users_by_role("deepauth")
+        user_ids.extend(auth_users)
+        user_ids.extend(deepauth_users)
+        user_ids = list(set(user_ids))  # убираем дубли
     else:
         user_ids = await get_users_by_role(target_role)
 
