@@ -1,11 +1,11 @@
 {
-    "macros": ["noauth", "auth", "admin", "preauth"],
-    "formulas": ["noauth", "auth", "admin", "preauth"],
+    "macros": ["noauth", "auth", "admin", "preauth", "deepauth"],
+    "formulas": ["noauth", "auth", "admin", "preauth", "deepauth"],
     "authorization": ["noauth"],
     "sql_requests": ["auth", "admin"],
-    "joke_of_the_day": ["auth", "admin"],
-    "feedback": ["auth", "admin"],
+    "joke_of_the_day": ["auth", "admin", "deepauth"],
+    "feedback": ["auth", "admin", "deepauth"],
     "admin_panel": ["admin"],
-    "experimental_ai": ["admin"],
-    "back_to_prev": ["admin"]
+    "experimental_ai": ["admin", "deepauth"],
+    "back_to_prev": ["admin", "deepauth"]
 }

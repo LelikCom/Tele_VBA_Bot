@@ -74,7 +74,7 @@ def get_main_menu_keyboard(user_role: str) -> InlineKeyboardMarkup:
         keyboard.append([
             InlineKeyboardButton(text="🔐 Авторизация", callback_data="authorization")
         ])
-    elif user_role == "auth":
+    elif user_role in ["auth", "deepauth"]:
         keyboard.append(main_buttons)
         keyboard.append([
             InlineKeyboardButton(text="🗃️ SQL запросы", callback_data="sql_requests"),

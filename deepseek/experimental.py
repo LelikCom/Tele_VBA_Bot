@@ -4,6 +4,7 @@ deepseek/experimental.py
 Текст предупреждения + готовые клавиатуры для режима «Попробовать с ИИ».
 Работает с python-telegram-bot (PTB) v20+.
 """
+
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 BUTTON_LABEL = "🧪 Попробовать с ИИ"
@@ -21,8 +22,16 @@ WARNING_TEXT = (
     "4️⃣ Ну и запасись терпением — ответ не всегда может быть быстрым."
 )
 
+
 def back_keyboard() -> InlineKeyboardMarkup:
-    """Кнопка «Назад» (пока просто возвращаемся к предыдущему сообщению)."""
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("⬅️ Назад", callback_data="back_to_prev")]
-    ])
+    """
+    Создаёт клавиатуру с кнопкой «Назад».
+
+    Returns:
+        InlineKeyboardMarkup: Клавиатура с одной кнопкой для возврата к предыдущему сообщению.
+    """
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("⬅️ Назад", callback_data="back_to_prev")]
+        ]
+    )

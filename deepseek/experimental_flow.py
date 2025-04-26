@@ -8,9 +8,19 @@ from deepseek.deepseek_client import DeepSeekClient
 api_client = DeepSeekClient()
 STATE_KEY = "awaiting_experimental_prompt"
 
-# ───────────────────────────────────────────────────────────────────
+
 async def start_experimental_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Старт запроса макроса или формулы."""
+    """
+    Запускает процесс запроса макроса или формулы через экспериментальную функцию.
+
+    Args:
+        update (Update): Объект обновления Telegram.
+        context (ContextTypes.DEFAULT_TYPE): Контекст текущего взаимодействия.
+
+    Side Effects:
+        Отправляет сообщение с предупреждением и клавиатурой.
+        Устанавливает флаг ожидания пользовательского ввода в context.user_data.
+    """
     query = update.callback_query
     await query.answer()
 
@@ -23,7 +33,16 @@ async def start_experimental_flow(update: Update, context: ContextTypes.DEFAULT_
 
 
 async def cancel_experimental(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Отмена запроса макроса или формулы."""
+    """
+    Отменяет процесс создания макроса или формулы через экспериментальную функцию.
+
+    Args:
+        update (Update): Объект обновления Telegram.
+        context (ContextTypes.DEFAULT_TYPE): Контекст текущего взаимодействия.
+
+    Side Effects:
+        Удаляет сообщение с предупреждением и сбрасывает флаг ожидания.
+    """
     query = update.callback_query
     await query.answer()
 
@@ -31,11 +50,21 @@ async def cancel_experimental(update: Update, context: ContextTypes.DEFAULT_TYPE
     context.user_data.pop(STATE_KEY, None)
 
 
-# ───────────────────────────────────────────────────────────────────
 async def experimental_text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обрабатывает текстовый ввод пользователя и отправляет его в DeepSeek."""
+    """
+    Обрабатывает текстовый ввод пользователя и отправляет запрос в DeepSeek API.
+
+    Args:
+        update (Update): Объект обновления Telegram.
+        context (ContextTypes.DEFAULT_TYPE): Контекст текущего взаимодействия.
+
+    Side Effects:
+        Отправляет промежуточные и итоговые сообщения пользователю.
+        Обрабатывает возможные ошибки при запросе к DeepSeek API.
+        Сбрасывает режим ожидания после успешной генерации ответа.
+    """
     if not context.user_data.get(STATE_KEY):
-        return  # если пользователь не в режиме ожидания, игнорируем
+        return
 
     prompt = update.message.text.strip()
 
@@ -60,17 +89,20 @@ async def experimental_text_handler(update: Update, context: ContextTypes.DEFAUL
 
         await status_msg.delete()
 
-        # Форматируем ответ и отправляем длинные сообщения частями
         formatted_response = safe_format_html(response)
-        await send_long_message(update.message, formatted_response, parse_mode=constants.ParseMode.HTML)
+        await send_long_message(
+            update.message, formatted_response, parse_mode=constants.ParseMode.HTML
+        )
 
-        context.user_data.pop(STATE_KEY, None)  # Сбрасываем режим
+        context.user_data.pop(STATE_KEY, None)
 
     except Exception as e:
-        kb = InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔄 Попробовать снова", callback_data="retry_experimental")],
-            [InlineKeyboardButton("⬅️ Главное меню", callback_data="back_to_main")]
-        ])
+        kb = InlineKeyboardMarkup(
+            [
+                [InlineKeyboardButton("🔄 Попробовать снова", callback_data="retry_experimental")],
+                [InlineKeyboardButton("⬅️ Главное меню", callback_data="back_to_main")],
+            ]
+        )
         try:
             await status_msg.edit_text(
                 f"🚨 Упс, не вышло:\n<code>{str(e) or 'Неизвестная ошибка'}</code>",
@@ -83,11 +115,20 @@ async def experimental_text_handler(update: Update, context: ContextTypes.DEFAUL
                 parse_mode=constants.ParseMode.HTML,
                 reply_markup=kb,
             )
-        # Не убираем STATE_KEY — чтобы пользователь мог попробовать снова
 
 
 async def retry_experimental(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обработка нажатия кнопки «Попробовать снова»."""
+    """
+    Обрабатывает повторную попытку ввода запроса для генерации макроса или формулы.
+
+    Args:
+        update (Update): Объект обновления Telegram.
+        context (ContextTypes.DEFAULT_TYPE): Контекст текущего взаимодействия.
+
+    Side Effects:
+        Запрашивает у пользователя новое описание макроса или формулы.
+        Снова устанавливает флаг ожидания пользовательского ввода в context.user_data.
+    """
     query = update.callback_query
     await query.answer()
 

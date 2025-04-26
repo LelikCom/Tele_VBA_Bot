@@ -58,6 +58,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Message:
                 "4) И рассказывать шутки!\n\n"
                 "Выбирай, чем займемся 📚"
             )
+        case "deepauth":
+            welcome_text = (
+                "Привет! Я бот, который умеет:\n"
+                "1) Строить формулы\n"
+                "2) Писать макросы\n"
+                "3) Делать SQL-запросы\n"
+                "4) И рассказывать шутки!\n\n"
+                "Выбирай, чем займемся 📚"
+            )
         case "admin":
             welcome_text = (
                 "С возвращением, админ!\n"

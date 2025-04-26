@@ -16,6 +16,8 @@ from telegram import (
     Message,
     constants,
 )
+import json
+from pathlib import Path
 from deepseek.experimental import BUTTON_LABEL
 
 from telegram.ext import CallbackQueryHandler, ContextTypes
@@ -35,6 +37,7 @@ from db.users import (
     get_user_role,
     get_users_by_role,
     fetch_users_by_role,
+    get_user_role_by_id,
 )
 from bot.core.utils.sql_utils import reply_with_log
 from log_dialog.handlers_diag import log_step
@@ -45,9 +48,15 @@ from macro.macros_logic import (
     show_instruction_options,
 )
 from deepseek.experimental import WARNING_TEXT, back_keyboard
+from deepseek.utils import is_deepseek_available
 
 
-# ------------------------------------------------------------------
+# загружаем allowed_actions один раз
+allowed_actions_path = Path('bot/core/auth_user/allowed_actions.json')
+with allowed_actions_path.open('r', encoding='utf-8') as f:
+    allowed_actions = json.load(f)
+
+
 @log_step(question_point=Point.SCENARIO, answer_text_getter=lambda msg: msg.text)
 async def handle_formulas(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
@@ -62,16 +71,19 @@ async def handle_formulas(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     formulas = await fetch_all_formul_macros()
 
-    # 👉 добавляем экспериментальную кнопку первой строкой
-    buttons: list[list[InlineKeyboardButton]] = [
-        [InlineKeyboardButton(BUTTON_LABEL, callback_data="experimental_ai")]
-    ]
-    # затем — формулы из БД
+    buttons: list[list[InlineKeyboardButton]] = []
+
+    user_id = update.effective_user.id
+    user_role = await get_user_role_by_id(user_id)
+    allowed_roles = allowed_actions.get('experimental_ai', [])
+
+    if is_deepseek_available() and user_role in allowed_roles:
+        buttons.append([InlineKeyboardButton(BUTTON_LABEL, callback_data="experimental_ai")])
+
     buttons += [
         [InlineKeyboardButton(name, callback_data=f"formula:{name}")]
         for _, name, _, _ in formulas
     ]
-    # “назад”
     buttons.append(
         [InlineKeyboardButton("⬅️ В главное меню", callback_data="back_to_main")]
     )
@@ -88,14 +100,10 @@ async def handle_formulas(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 
-# ------------------------------------------------------------------
 @log_step(question_point=Point.SCENARIO, answer_text_getter=lambda msg: msg.text)
 async def handle_macros(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Обрабатывает выбор раздела "Макросы" из главного меню.
-
-    Загружает все доступные макросы из базы данных и отправляет пользователю список кнопок
-    для выбора одного из них, включая кнопку возврата в главное меню.
 
     Args:
         update (Update): Объект Telegram-обновления.
@@ -106,9 +114,15 @@ async def handle_macros(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     macros = await fetch_all_macros()
 
-    buttons: list[list[InlineKeyboardButton]] = [
-        [InlineKeyboardButton(BUTTON_LABEL, callback_data="experimental_ai")]
-    ]
+    buttons: list[list[InlineKeyboardButton]] = []
+
+    user_id = update.effective_user.id
+    user_role = await get_user_role_by_id(user_id)
+    allowed_roles = allowed_actions.get('experimental_ai', [])
+
+    if is_deepseek_available() and user_role in allowed_roles:
+        buttons.append([InlineKeyboardButton(BUTTON_LABEL, callback_data="experimental_ai")])
+
     buttons += [
         [InlineKeyboardButton(name, callback_data=f"macro:{name}")]
         for _, name, _ in macros
