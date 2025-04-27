@@ -31,6 +31,7 @@
 ```bash
 git clone https://github.com/LelikCom/Tele_VBA_Bot.git
 cd Tele_VBA_Bot
+git checkout feature/deepseek
 ```
 
 2. Настройка окружения
